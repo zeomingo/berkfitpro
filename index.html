@@ -694,10 +694,10 @@
 
     const SEASON_START_DATE = new Date("2026-08-31T00:00:00");
 
-    // --- GARANTİLİ VE CORS ENGELSİZ BULUT HAVUZU (KVDB.IO) ---
-    const KVDB_BUCKET = "BFiL95sQZfTq9Wj4e8pM2n";
-    const KVDB_KEY = "berkfit_shared_users_v2";
-    const KVDB_URL = `https://kvdb.io/${KVDB_BUCKET}/${KVDB_KEY}`;
+    // --- KESİN VE GARANTİLİ BULUT SUNUCUSU (JSONBIN API) ---
+    const JSONBIN_BIN_ID = "66d3a812acd3cb34a87b8f9e";
+    const JSONBIN_API_KEY = "$2a$10$7vN34h5PzCj15WwV0hFvXe7t0zN230.fQZ8XqVb9G0wL1v5WqP9Te";
+    const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
     let defaultUsers = {
       'berk': { 
@@ -723,17 +723,23 @@
     async function syncCloudDB(fetchFirst = false) {
       try {
         if (fetchFirst) {
-          const res = await fetch(KVDB_URL);
+          const res = await fetch(`${JSONBIN_URL}/latest`, {
+            headers: { "X-Master-Key": JSONBIN_API_KEY }
+          });
           if (res.ok) {
             const data = await res.json();
-            if (data && typeof data === 'object') {
-              usersData = { ...defaultUsers, ...data };
+            if (data && data.record && typeof data.record === 'object') {
+              usersData = { ...defaultUsers, ...data.record };
               localStorage.setItem('berkfit_users_db', JSON.stringify(usersData));
             }
           }
         } else {
-          await fetch(KVDB_URL, {
-            method: "POST",
+          await fetch(JSONBIN_URL, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Master-Key": JSONBIN_API_KEY
+            },
             body: JSON.stringify(usersData)
           });
         }
