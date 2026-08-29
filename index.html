@@ -694,9 +694,10 @@
 
     const SEASON_START_DATE = new Date("2026-08-31T00:00:00");
 
-    // --- TÜM CİHAZLARIN BAĞLANDIĞI ORTAK BULUT REST API HAVUZU ---
-    const SHARED_CLOUD_OBJECT_ID = "ff80818191cb5cb90191cb61d7630001";
-    const CLOUD_API_ENDPOINT = `https://api.restful-api.dev/objects/${SHARED_CLOUD_OBJECT_ID}`;
+    // --- GARANTİLİ VE CORS ENGELSİZ BULUT HAVUZU (KVDB.IO) ---
+    const KVDB_BUCKET = "BFiL95sQZfTq9Wj4e8pM2n";
+    const KVDB_KEY = "berkfit_shared_users_v2";
+    const KVDB_URL = `https://kvdb.io/${KVDB_BUCKET}/${KVDB_KEY}`;
 
     let defaultUsers = {
       'berk': { 
@@ -718,26 +719,23 @@
     let draggedIndex = null;
     let currentSlide = 0;
 
-    // --- BULUT VERİ SENKRONİZASYONU (HERKES BİRBİRİNİ GÖRÜR) ---
+    // --- BULUT VERİ SENKRONİZASYONU ---
     async function syncCloudDB(fetchFirst = false) {
       try {
         if (fetchFirst) {
-          const res = await fetch(CLOUD_API_ENDPOINT);
+          const res = await fetch(KVDB_URL);
           if (res.ok) {
-            const result = await res.json();
-            if (result && result.data && result.data.users) {
-              usersData = { ...usersData, ...result.data.users };
+            const data = await res.json();
+            if (data && typeof data === 'object') {
+              usersData = { ...defaultUsers, ...data };
               localStorage.setItem('berkfit_users_db', JSON.stringify(usersData));
             }
           }
         } else {
-          fetch(CLOUD_API_ENDPOINT, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              data: { users: usersData }
-            })
-          }).catch(() => {});
+          await fetch(KVDB_URL, {
+            method: "POST",
+            body: JSON.stringify(usersData)
+          });
         }
       } catch (err) {}
     }
@@ -827,7 +825,6 @@
         saveDB();
         closeModal('loginModal');
         
-        // Yenilenen sayfada kalınan sekmeden devam et (varsayılan: today)
         const savedView = localStorage.getItem('berkfit_current_view') || 'today';
         switchView(savedView, false);
       } else {
@@ -856,15 +853,12 @@
       }
     }
 
-    // --- SEKMEDE KALMA HAFIZASI EKLENDİ ---
     function switchView(view, closeMenu = true) {
       if (closeMenu) toggleSidebar(false);
       if (!currentUser) { openLoginModal(true); return; }
 
-      // Aktif sekme durumunu hafızaya kaydet
       localStorage.setItem('berkfit_current_view', view);
 
-      // Menüdeki aktif linki işaretle
       ['today', 'leaderboard', 'weekly', 'admin'].forEach(v => {
         const el = document.getElementById(`nav-${v}`);
         if (el) el.classList.toggle('active', v === view);
@@ -876,7 +870,6 @@
       else if (view === 'admin') renderAdminView();
     }
 
-    // --- KART SLIDER YÖNETİMİ: SOLDA SAĞA OK, SAĞDA SOLA OK ---
     function setSlide(index) {
       currentSlide = index;
       const track = document.getElementById('sliderTrack');
@@ -1109,9 +1102,10 @@
       }
     }
 
+    // --- TÜM CİHAZLARLA BULUTTAN ANLIK SENKRONİZE LİDERLİK TABLOSU ---
     async function renderLeaderboardView() {
       const main = document.getElementById('mainContent');
-      main.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted);">Buluttan canlı sıralama yükleniyor... ⚡</div>`;
+      main.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted);">Buluttan tüm cihazlar güncelleniyor... ⚡</div>`;
 
       await syncCloudDB(true);
       checkSeasonStartReset();
@@ -1125,7 +1119,7 @@
             <h2 style="font-size:20px; font-weight:800; display:flex; align-items:center; gap:8px;">
               🏆 Canlı Liderlik Tablosu
             </h2>
-            <button onclick="renderLeaderboardView()" style="background:#1c2430; border:1px solid var(--card-border); color:var(--accent); padding:4px 8px; border-radius:6px; font-size:12px; cursor:pointer;">🔄 Yenile</button>
+            <button onclick="renderLeaderboardView()" style="background:#1c2430; border:1px solid var(--card-border); color:var(--accent); padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">🔄 Buluttan Güncelle</button>
           </div>
           <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
             ${isPreSeason ? '⏳ <b>Hazırlık Modu:</b> Resmi yarışma 31 Ağustos\'ta başlayacaktır.' : 'Tüm cihazlarla anlık senkronize sezon tablosu.'}
