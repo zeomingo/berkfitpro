@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BerkFit Pro</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d13;
+      --card: #131922;
+      --card-border: #222d3d;
+      --primary: #238636;
+      --accent: #388bfd;
+      --danger: #f85149;
+      --warning: #d29922;
+      --text: #f0f6fc;
+      --text-muted: #8b949e;
+      --gold: #f1e05a;
+      --silver: #e6edf3;
+      --bronze: #d29922;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .menu-btn { background: none; border: none; color: var(--text); font-size: 22px; cursor: pointer; padding: 4px; }
+    .brand-title { font-size: 19px; font-weight: 800; background: linear-gradient(90deg, #388bfd, #2ea043); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .btn-auth { background: #1c2430; border: 1px solid var(--card-border); color: var(--text); padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .badge-admin { background: rgba(56, 139, 253, 0.15); color: var(--accent); border: 1px solid rgba(56, 139, 253, 0.4); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+
+    .sidebar {
+      position: fixed; top: 0; left: -290px; width: 280px; height: 100%;
+      background: #131922; border-right: 1px solid var(--card-border);
+      z-index: 200; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px 16px;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 199; display: none; }
+    .sidebar-overlay.open { display: block; }
+    .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+    .sidebar-nav li a { display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; padding: 11px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+    .sidebar-nav li a:hover, .sidebar-nav li a.active { background: #1c2430; color: var(--accent); }
+
+    main { flex: 1; max-width: 580px; width: 100%; margin: 0 auto; padding: 16px; }
+
+    .user-level-card {
+      background: linear-gradient(135deg, #16202e, #0f1622);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .level-header { display: flex; justify-content: space-between; align-items: center; }
+    .level-title { font-size: 13px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 6px; }
+    .xp-count { font-size: 13px; font-weight: 800; color: var(--gold); }
+    .xp-bar-bg { width: 100%; height: 8px; background: #090d13; border-radius: 10px; overflow: hidden; border: 1px solid var(--card-border); }
+    .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #388bfd, #2ea043); width: 0%; transition: width 0.5s ease; }
+
+    .day-banner {
+      background: linear-gradient(135deg, #182230, #0f1722);
+      border: 1px solid var(--card-border);
+      padding: 16px 18px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .day-banner h2 { font-size: 18px; font-weight: 800; }
+    .day-banner p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+    .btn-start-workout {
+      width: 100%;
+      background: linear-gradient(180deg, #2ea043, #238636);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 16px rgba(35, 134, 54, 0.4);
+    }
+    .btn-start-workout:active { transform: scale(0.98); }
+
+    .btn-reset-workout {
+      width: 100%;
+      background: #1c2430;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: all 0.2s;
+    }
+    .btn-reset-workout:hover { color: var(--danger); border-color: rgba(248, 81, 73, 0.4); background: rgba(248, 81, 73, 0.08); }
+
+    .exercise-list { display: flex; flex-direction: column; gap: 10px; }
+    .exercise-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      user-select: none;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .exercise-card:hover { background: #182230; border-color: rgba(56, 139, 253, 0.4); }
+    .drag-handle {
+      color: #58a6ff;
+      cursor: grab;
+      font-size: 20px;
+      padding: 4px 8px;
+      background: #1c2430;
+      border-radius: 6px;
+    }
+    .exercise-info { flex: 1; }
+    .exercise-name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .exercise-target { font-size: 12px; color: var(--accent); font-weight: 600; margin-top: 2px; }
+    .exercise-sets { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .status-check { font-size: 22px; color: #30363d; }
+    .status-check.completed { color: #3fb950; font-weight: 900; }
+
+    .leader-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+    .rank-badge {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 15px; border-radius: 8px;
+    }
+    .rank-1 { background: rgba(241, 224, 90, 0.15); color: var(--gold); border: 1px solid var(--gold); }
+    .rank-2 { background: rgba(230, 237, 243, 0.15); color: var(--silver); border: 1px solid var(--silver); }
+    .rank-3 { background: rgba(210, 153, 34, 0.15); color: var(--bronze); border: 1px solid var(--bronze); }
+    .rank-other { background: #1c2430; color: var(--text-muted); }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+      z-index: 300; display: none; align-items: center; justify-content: center; padding: 14px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      width: 100%; max-width: 500px;
+      padding: 20px;
+      display: flex; flex-direction: column; gap: 14px;
+      max-height: 94vh; overflow-y: auto;
+      position: relative;
+    }
+
+    .workout-stage {
+      width: 100%;
+      height: 220px;
+      background: radial-gradient(circle at center, #1b2738 0%, #0d131a 100%);
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .stage-badge {
+      position: absolute; top: 10px; left: 10px;
+      background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.1);
+      padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; color: var(--accent);
+    }
+    
+    .fly-left-arm { transform-origin: 55px 72px; animation: armFlyLeft 2.4s ease-in-out infinite alternate; }
+    .fly-right-arm { transform-origin: 105px 72px; animation: armFlyRight 2.4s ease-in-out infinite alternate; }
+    @keyframes armFlyLeft { 0% { transform: rotate(-35deg); } 100% { transform: rotate(18deg); } }
+    @keyframes armFlyRight { 0% { transform: rotate(35deg); } 100% { transform: rotate(-18deg); } }
+    .moving-weight { animation: moveWeight 2.2s ease-in-out infinite alternate; }
+    @keyframes moveWeight { 0% { transform: translateY(12px); } 100% { transform: translateY(-16px); } }
+    .moving-press { animation: movePress 2s ease-in-out infinite alternate; }
+    @keyframes movePress { 0% { transform: translateX(-6px); } 100% { transform: translateX(12px); } }
+
+    .form-tip-box {
+      background: #0f1620; border-left: 3px solid var(--accent);
+      padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 12px; line-height: 1.5; text-align: left;
+    }
+
+    /* Silik Placeholder ve Gelişmiş Giriş Stilleri */
+    .log-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    .log-table th { font-size: 11px; color: var(--text-muted); text-align: center; padding: 6px; }
+    .log-table td { padding: 4px 6px; text-align: center; }
+    .input-log {
+      width: 78px;
+      background: #090d13;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    /* Silik Gölge Görünümü */
+    .input-log::placeholder {
+      color: #485569;
+      font-weight: 500;
+      opacity: 0.7;
+    }
+    .input-log:focus {
+      border-color: var(--accent);
+      outline: none;
+      background: #111722;
+      box-shadow: 0 0 10px rgba(56, 139, 253, 0.25);
+    }
+
+    .runner-nav { display: flex; gap: 10px; margin-top: 6px; }
+    .btn-nav {
+      flex: 1; padding: 12px; background: #1c2430; border: 1px solid var(--card-border);
+      color: var(--text); font-size: 14px; font-weight: 700; border-radius: 10px; cursor: pointer;
+    }
+    .btn-nav.btn-done { background: var(--primary); border-color: var(--primary); }
+
+    .rating-section { background: #090d13; border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; text-align: left; }
+    .rating-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .rating-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    .stars { display: flex; gap: 4px; font-size: 20px; cursor: pointer; color: #2d3748; }
+    .stars span.active { color: var(--gold); }
+
+    .btn-table-action {
+      background: #21262d; border: 1px solid var(--card-border); color: var(--text);
+      padding: 5px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600;
+    }
+    .btn-table-action:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-table-delete { color: var(--danger); border-color: rgba(248, 81, 73, 0.3); }
+    .btn-table-delete:hover { background: rgba(248, 81, 73, 0.15); border-color: var(--danger); color: #fff; }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--card-border); padding-bottom:12px;">
+      <h3 style="font-weight: 800;">BerkFit Pro</h3>
+      <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer;">✕</button>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="#" class="active" onclick="switchView('today')">📅 Günün Antrenmanı</a></li>
+      <li><a href="#" onclick="switchView('leaderboard')">🏆 Liderlik Tablosu (XP)</a></li>
+      <li><a href="#" onclick="switchView('weekly')">📋 Haftalık Plan & Çizelge</a></li>
+      <li id="adminMenuLink" style="display: none;"><a href="#" onclick="switchView('admin')">👑 Admin & Üye Paneli</a></li>
+    </ul>
+  </aside>
+
+  <header>
+    <div class="header-left">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="brand-title">BerkFit Pro</div>
+    </div>
+    <div class="header-right">
+      <div id="userBadgeArea"></div>
+      <button class="btn-auth" id="authBtn" onclick="openLoginModal(false)">Giriş Yap</button>
+    </div>
+  </header>
+
+  <main id="mainContent"></main>
+
+  <div class="modal-overlay" id="workoutModal" onclick="closeModalOnOverlay(event, 'workoutModal')">
+    <div class="modal-box" id="workoutRunnerBox" onclick="event.stopPropagation()"></div>
+  </div>
+
+  <div class="modal-overlay" id="loginModal" onclick="closeModalOnOverlay(event, 'loginModal')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div style="text-align:center; margin-bottom:6px;">
+        <h3 style="font-weight: 800; font-size:20px;">BerkFit Pro'ya Katıl</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top:4px;">
+          Antrenmanlarını kaydetmek ve liderlik tablosuna katılmak için giriş yap veya isim belirle.
+        </p>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div>
+          <label style="font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:4px; display:block;">Kullanıcı Adı:</label>
+          <input type="text" id="loginUsername" placeholder="Örn: berk veya ahmet" style="width:100%; background:#090d13; border:1px solid var(--card-border); color:#fff; padding:12px; border-radius:8px; font-size:14px;">
+        </div>
+
+        <div>
+          <label style="font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:4px; display:block;">Şifre (Sınır Yok):</label>
+          <input type="password" id="loginPassword" placeholder="İstediğin şifreyi gir" style="width:100%; background:#090d13; border:1px solid var(--card-border); color:#fff; padding:12px; border-radius:8px; font-size:14px;">
+        </div>
+      </div>
+
+      <button class="btn-start-workout" style="margin-top:8px; margin-bottom:0;" onclick="handleLogin()">Giriş Yap / Hesabı Oluştur</button>
+      <button id="cancelLoginBtn" onclick="closeModal('loginModal')" style="background:none; border:none; color:var(--text-muted); font-size:13px; cursor:pointer; display:none;">Kapat</button>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_TARGETS = {
+      "cp_mach": { kg: 35, rep: 12 },
+      "cf_mach": { kg: 30, rep: 12 },
+      "lat_pull": { kg: 40, rep: 12 },
+      "cable_row": { kg: 35, rep: 12 },
+      "upright_row": { kg: 10, rep: 12 },
+      "leg_press": { kg: 70, rep: 12 },
+      "leg_curl": { kg: 30, rep: 12 },
+      "leg_ext": { kg: 35, rep: 12 },
+      "cable_biceps": { kg: 17.5, rep: 12 },
+      "cable_triceps": { kg: 20, rep: 12 },
+      "treadmill": { kg: 0, rep: 25 }
+    };
+
+    const EXERCISE_DATA = {
+      "Seated Chest Fly Machine": {
+        muscle: "Pectoralis Major (Kuş Bakışı)",
+        tip: "Kuş bakışı açıda gördüğünüz gibi, dirsek açısını sabit tutarak ellerinizi göğüs hizanızın tam önünde birleştirin.",
+        svg: `
+          <div class="stage-badge">Kuş Bakışı (Tepeden Bakış)</div>
+          <svg viewBox="0 0 160 140" style="width:180px; height:150px;">
+            <rect x="50" y="85" width="60" height="12" rx="4" fill="#2d3748" stroke="#485569" stroke-width="2"/>
+            <circle cx="80" cy="72" r="14" fill="#388bfd" stroke="#f0f6fc" stroke-width="2"/>
+            <path d="M55 72 Q80 78 105 72" stroke="#f0f6fc" stroke-width="6" stroke-linecap="round"/>
+            <g class="fly-left-arm">
+              <line x1="55" y1="72" x2="35" y2="45" stroke="#2ea043" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="35" cy="45" r="5" fill="#f1e05a"/>
+              <rect x="25" y="38" width="10" height="16" rx="2" fill="#485569"/>
+            </g>
+            <g class="fly-right-arm">
+              <line x1="105" y1="72" x2="125" y2="45" stroke="#2ea043" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="125" cy="45" r="5" fill="#f1e05a"/>
+              <rect x="125" y="38" width="10" height="16" rx="2" fill="#485569"/>
+            </g>
+            <circle cx="80" cy="36" r="4" fill="#58a6ff" opacity="0.6"/>
+            <path d="M50 38 Q80 26 110 38" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="3,3" fill="none"/>
+          </svg>
+        `
+      },
+      "Chest Press Machine": {
+        muscle: "Göğüs (Pectoralis Major)",
+        tip: "Sırtınızı ve belinizi mindere yaslayın. İtiş yaparken omuzlarınızı öne düşürmeden göğsü önde tutun.",
+        svg: `
+          <div class="stage-badge">Makine Göğüs İtiş</div>
+          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+            <rect x="25" y="30" width="10" height="70" rx="3" fill="#2d3748"/>
+            <circle cx="55" cy="40" r="10" fill="#388bfd"/>
+            <path d="M50 50 L45 85 L65 105" stroke="#f0f6fc" stroke-width="5" stroke-linecap="round"/>
+            <g class="moving-press">
+              <path d="M52 58 L85 58 L115 50" stroke="#2ea043" stroke-width="5" stroke-linecap="round"/>
+              <rect x="110" y="35" width="8" height="35" rx="3" fill="#f1e05a"/>
+            </g>
+          </svg>
+        `
+      },
+      "Lat Pulldown Machine": {
+        muscle: "Kanat & Üst Sırt",
+        tip: "Bara asılırken göğsü kabartın ve barı üst göğüs çizginize doğru kürek kemiklerinizi sıkarak çekin.",
+        svg: `
+          <div class="stage-badge">Dikey Sırt Çekişi</div>
+          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+            <circle cx="80" cy="45" r="9" fill="#388bfd"/>
+            <path d="M80 54 L80 95" stroke="#f0f6fc" stroke-width="5"/>
+            <g class="moving-weight">
+              <line x1="25" y1="20" x2="135" y2="20" stroke="#f1e05a" stroke-width="6" stroke-linecap="round"/>
+              <path d="M80 60 L45 22 M80 60 L115 22" stroke="#2ea043" stroke-width="5" stroke-linecap="round"/>
+            </g>
+          </svg>
+        `
+      },
+      "Seated Cable Row": {
+        muscle: "Orta Sırt & Kalınlık",
+        tip: "Gövdeyi aşırı sallamayın. Dirsekleri geriye atarak kürek kemiklerinizi tam birleştirin.",
+        svg: `
+          <div class="stage-badge">Karına Yatay Çekiş</div>
+          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+            <circle cx="45" cy="40" r="9" fill="#388bfd"/>
+            <path d="M45 50 L40 85 L70 85" stroke="#f0f6fc" stroke-width="5"/>
+            <g class="moving-press">
+              <line x1="130" y1="70" x2="65" y2="70" stroke="#f1e05a" stroke-width="4"/>
+              <path d="M45 56 L65 70" stroke="#2ea043" stroke-width="5" stroke-linecap="round"/>
+            </g>
+          </svg>
+        `
+      },
+      "Upright Dumbbell Row": {
+        muscle: "Yan Omuz & Üst Trapez",
+        tip: "Dambılları göğüs hizasına kadar çekin. Dirsekler daima el bileklerinden yukarıda olsun.",
+        svg: `
+          <div class="stage-badge">Yan Omuz & Trapez</div>
+          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+            <circle cx="80" cy="30" r="9" fill="#388bfd"/>
+            <line x1="80" y1="40" x2="80" y2="90" stroke="#f0f6fc" stroke-width="5"/>
+            <g class="moving-weight">
+              <path d="M80 48 L50 40 L65 65" stroke="#2ea043" stroke-width="5" stroke-linecap="round"/>
+              <path d="M80 48 L110 40 L95 65" stroke="#2ea043" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="65" cy="65" r="6" fill="#f1e05a"/>
+              <circle cx="95" cy="65" r="6" fill="#f1e05a"/>
+            </g>
+          </svg>
+        `
+      },
+      "Leg Press Machine": {
+        muscle: "Bacak & Kalça (45°)",
+        tip: "Dizleri üst noktada kilitlemeyin. Ayak tabanları platformdan hiç ayrılmasın.",
+        svg: `
+          <div class="stage-badge">Bacak İtiş (45°)</div>
+          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+            <rect x="25" y="70" width="40" height="10" transform="rotate(-35 25 70)" fill="#2d3748"/>
+            <circle cx="45" cy="50" r="9" fill="#388bfd"/>
+            <g class="moving-press">
+              <path d="M45 60 L60 78 L85 60 L110 42" stroke="#2ea043" stroke-width="6" stroke-linecap="round"/>
+              <rect x="105" y="25" width="10" height="40" transform="rotate(30 105 25)" fill="#f1e05a"/>
+            </g>
+          </svg>
+        `
+      },
+      "Leg Curl (Arka Bacak)": {
+        muscle: "Hamstring (Arka Bacak)",
+        tip: "Topukları kalçaya çekerken beli sehpaya yapıştırın.",
+        svg: `
+          <div class="stage-badge">Arka Bacak Büküş</div>
+          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+            <rect x="25" y="75" width="80" height="10" rx="3" fill="#2d3748"/>
+            <circle cx="35" cy="65" r="8" fill="#388bfd"/>
+            <g class="moving-weight">
+              <path d="M42 72 L80 72 L105 50" stroke="#2ea043" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="105" cy="50" r="7" fill="#f1e05a"/>
+            </g>
+          </svg>
+        `
+      },
+      "Leg Extension (Ön Bacak)": {
+        muscle: "Quadriceps (Ön Bacak)",
+        tip: "Tepe noktada 1 saniye sıkın ve ağırlığı yavaşça indirin.",
+        svg: `
+          <div class="stage-badge">Ön Bacak Açış</div>
+          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+            <circle cx="50" cy="45" r="9" fill="#388bfd"/>
+            <path d="M50 55 L50 85" stroke="#f0f6fc" stroke-width="5"/>
+            <g class="moving-weight">
+              <path d="M50 85 L90 85" stroke="#2ea043" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="90" cy="85" r="7" fill="#f1e05a"/>
+            </g>
+          </svg>
+        `
+      },
+      "Biceps Cable Curl": {
+        muscle: "Pazı (Biceps)",
+        tip: "Dirsekleri belin iki yanına sabitleyip gövdeyi sallamadan bükün.",
+        svg: `
+          <div class="stage-badge">Kablo Ön Kol</div>
+          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+            <circle cx="70" cy="35" r="9" fill="#388bfd"/>
+            <line x1="70" y1="45" x2="70" y2="95" stroke="#f0f6fc" stroke-width="5"/>
+            <g class="moving-weight">
+              <path d="M70 55 L72 75 L85 55" stroke="#2ea043" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="85" cy="55" r="6" fill="#f1e05a"/>
+            </g>
+          </svg>
+        `
+      },
+      "Triceps Cable Pushdown": {
+        muscle: "Arka Kol (Triceps)",
+        tip: "Dirsekleri sabitleyip aşağı doğru presleyin, alt noktada arka kolu kilitleyin.",
+        svg: `
+          <div class="stage-badge">Kablo Arka Kol</div>
+          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+            <circle cx="65" cy="35" r="9" fill="#388bfd"/>
+            <line x1="65" y1="45" x2="65" y2="95" stroke="#f0f6fc" stroke-width="5"/>
+            <g class="moving-weight">
+              <path d="M65 55 L75 68 L75 92" stroke="#2ea043" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="75" cy="92" r="6" fill="#f1e05a"/>
+            </g>
+          </svg>
+        `
+      },
+      "Eğimli Yürüyüş Bandı": {
+        muscle: "Kardiyovasküler & Yağ Yakımı",
+        tip: "Bant tutacaklarına asılmadan dik tempoda yürüyün.",
+        svg: `
+          <div class="stage-badge">LISS Kardiyo</div>
+          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+            <line x1="30" y1="95" x2="130" y2="75" stroke="#f1e05a" stroke-width="7" stroke-linecap="round"/>
+            <circle cx="75" cy="40" r="9" fill="#388bfd"/>
+            <g class="moving-press">
+              <path d="M75 50 L70 70 L55 90 M70 70 L85 86" stroke="#2ea043" stroke-width="5" stroke-linecap="round"/>
+            </g>
+          </svg>
+        `
+      }
+    };
+
+    const INITIAL_ROUTINE = [
+      { id: "cp_mach", name: "Chest Press Machine", sets: "3 Set × 10-12 Tekrar", completed: false },
+      { id: "cf_mach", name: "Seated Chest Fly Machine", sets: "3 Set × 12 Tekrar", completed: false },
+      { id: "lat_pull", name: "Lat Pulldown Machine", sets: "3 Set × 10-12 Tekrar", completed: false },
+      { id: "cable_row", name: "Seated Cable Row", sets: "3 Set × 10-12 Tekrar", completed: false },
+      { id: "upright_row", name: "Upright Dumbbell Row", sets: "3 Set × 12 Tekrar", completed: false },
+      { id: "leg_press", name: "Leg Press Machine", sets: "3 Set × 10-12 Tekrar", completed: false },
+      { id: "leg_curl", name: "Leg Curl (Arka Bacak)", sets: "3 Set × 12 Tekrar", completed: false },
+      { id: "leg_ext", name: "Leg Extension (Ön Bacak)", sets: "3 Set × 12-15 Tekrar", completed: false },
+      { id: "cable_biceps", name: "Biceps Cable Curl", sets: "3 Set × 12 Tekrar", completed: false },
+      { id: "cable_triceps", name: "Triceps Cable Pushdown", sets: "3 Set × 12-15 Tekrar", completed: false },
+      { id: "treadmill", name: "Eğimli Yürüyüş Bandı", sets: "20-25 dk | Eğim %8-10", completed: false }
+    ];
+
+    let defaultUsers = {
+      'berk': { username: 'berk', password: '', role: 'admin', routine: INITIAL_ROUTINE, ratings: {}, logs: {}, xp: 0, week: 1 }
+    };
+
+    let currentUser = JSON.parse(localStorage.getItem('berkfit_user')) || null;
+    let usersData = JSON.parse(localStorage.getItem('berkfit_users_db')) || defaultUsers;
+    let currentExerciseIndex = 0;
+    let draggedIndex = null;
+
+    function saveDB() {
+      localStorage.setItem('berkfit_users_db', JSON.stringify(usersData));
+      localStorage.setItem('berkfit_user', JSON.stringify(currentUser));
+    }
+
+    function calculateLevel(xp) {
+      const level = Math.floor((xp || 0) / 1000) + 1;
+      const nextLevelXp = level * 1000;
+      const currentLevelBase = (level - 1) * 1000;
+      const progressPercent = Math.min(100, Math.max(0, (((xp || 0) - currentLevelBase) / 1000) * 100));
+      return { level, progressPercent, nextLevelXp };
+    }
+
+    function calculateSmartTarget(exId, setIndex) {
+      if (!currentUser) return { kg: 30, rep: 12 };
+      const user = usersData[currentUser.username] || {};
+      const prevLogs = user.logs && user.logs[exId];
+      const ratings = user.ratings && user.ratings[exId];
+      const defaultTarget = DEFAULT_TARGETS[exId] || { kg: 30, rep: 12 };
+
+      if (prevLogs && prevLogs[setIndex] && prevLogs[setIndex].kg !== undefined && prevLogs[setIndex].kg !== "") {
+        let baseKg = parseFloat(prevLogs[setIndex].kg) || defaultTarget.kg;
+        let baseRep = parseInt(prevLogs[setIndex].rep) || defaultTarget.rep;
+
+        if (ratings && ratings.efficiency >= 4 && ratings.weight >= 4) {
+          baseKg += (exId === 'leg_press' ? 5 : 2.5);
+        }
+        return { kg: baseKg, rep: baseRep };
+      }
+      return { kg: defaultTarget.kg, rep: defaultTarget.rep };
+    }
+
+    function init() {
+      renderHeader();
+      if (!currentUser) {
+        openLoginModal(true);
+      } else {
+        renderTodayView();
+      }
+    }
+
+    function renderHeader() {
+      const userBadge = document.getElementById('userBadgeArea');
+      const authBtn = document.getElementById('authBtn');
+      const adminLink = document.getElementById('adminMenuLink');
+
+      if (currentUser) {
+        userBadge.innerHTML = `
+          <span style="font-size:13px; font-weight:700;">${currentUser.username}</span>
+          ${currentUser.role === 'admin' ? '<span class="badge-admin">Admin</span>' : ''}
+        `;
+        authBtn.innerText = 'Çıkış Yap';
+        authBtn.onclick = handleLogout;
+        adminLink.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+      } else {
+        userBadge.innerHTML = '';
+        authBtn.innerText = 'Giriş Yap';
+        authBtn.onclick = () => openLoginModal(false);
+        adminLink.style.display = 'none';
+      }
+    }
+
+    function switchView(view) {
+      toggleSidebar(false);
+      if (!currentUser) { openLoginModal(true); return; }
+      if (view === 'today') renderTodayView();
+      else if (view === 'leaderboard') renderLeaderboardView();
+      else if (view === 'weekly') renderWeeklyView();
+      else if (view === 'admin') renderAdminView();
+    }
+
+    function renderTodayView() {
+      const main = document.getElementById('mainContent');
+      if (!currentUser) {
+        main.innerHTML = `<div style="text-align:center; padding:40px;"><p>Antrenman programını görmek için lütfen giriş yapın.</p></div>`;
+        return;
+      }
+      const userData = usersData[currentUser.username] || { xp: 0 };
+      const routine = userData.routine || INITIAL_ROUTINE;
+      const { level, progressPercent, nextLevelXp } = calculateLevel(userData.xp || 0);
+
+      main.innerHTML = `
+        <div class="user-level-card">
+          <div class="level-header">
+            <div class="level-title">⚡ SEVİYE ${level} SPORCU</div>
+            <div class="xp-count">${userData.xp || 0} XP</div>
+          </div>
+          <div class="xp-bar-bg">
+            <div class="xp-bar-fill" style="width: ${progressPercent}%;"></div>
+          </div>
+          <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between;">
+            <span>Seviye ${level}</span>
+            <span>Sonraki Seviye: ${nextLevelXp} XP</span>
+          </div>
+        </div>
+
+        <div class="day-banner">
+          <div>
+            <h2>Pazartesi: Full Body</h2>
+            <p>1. Ay Programı • ${routine.length} Egzersiz</p>
+          </div>
+          <span style="font-size:26px;">🔥</span>
+        </div>
+
+        <button class="btn-start-workout" onclick="startWorkout()">
+          ▶ Antrenmana Başla
+        </button>
+
+        <button class="btn-reset-workout" onclick="resetMyWorkout()">
+          🔄 Antrenmanı Sıfırla (Tikleri & Test Verilerini Temizle)
+        </button>
+
+        <div class="exercise-list">
+          ${routine.map((ex, index) => {
+            const detail = EXERCISE_DATA[ex.name] || { muscle: "Genel" };
+            return `
+              <div class="exercise-card" onclick="openSingleExercise(${index})" draggable="true" ondragstart="dragStart(${index}, event)" ondragover="dragOver(event)" ondrop="drop(${index}, event)">
+                <div class="drag-handle" onclick="event.stopPropagation()">⠿</div>
+                <div class="exercise-info">
+                  <div class="exercise-name">${index + 1}. ${ex.name}</div>
+                  <div class="exercise-target">(${detail.muscle})</div>
+                  <div class="exercise-sets">${ex.sets}</div>
+                </div>
+                <div class="status-check ${ex.completed ? 'completed' : ''}">
+                  ${ex.completed ? '✓' : '○'}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function resetMyWorkout() {
+      if (!confirm('Bugünkü antrenmandaki tüm yeşil tikleri ve test kayıtlarını sıfırlamak istiyor musunuz?')) return;
+      
+      const user = usersData[currentUser.username];
+      if (user && user.routine) {
+        user.routine.forEach(ex => ex.completed = false);
+        user.logs = {};
+        
+        if (confirm('Test sırasında kazanılan XP puanınızı da 0 yapmak ister misiniz?')) {
+          user.xp = 0;
+        }
+        
+        saveDB();
+        renderTodayView();
+        alert('Antrenman sıfırlandı! Yeni bir antrenmana hazırsınız.');
+      }
+    }
+
+    function renderLeaderboardView() {
+      const main = document.getElementById('mainContent');
+      const sortedUsers = Object.values(usersData).sort((a, b) => (b.xp || 0) - (a.xp || 0));
+
+      main.innerHTML = `
+        <div style="margin-bottom:16px;">
+          <h2 style="font-size:20px; font-weight:800; display:flex; align-items:center; gap:8px;">
+            🏆 Haftalık Liderlik Tablosu
+          </h2>
+          <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+            Kaldırdığın kilo ve tamamladığın tekrarlar XP'ye dönüşür. Sıralamada yüksel!
+          </p>
+        </div>
+
+        <div>
+          ${sortedUsers.map((user, idx) => {
+            const rank = idx + 1;
+            const rankClass = rank === 1 ? 'rank-1' : (rank === 2 ? 'rank-2' : (rank === 3 ? 'rank-3' : 'rank-other'));
+            const rankIcon = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
+            const isMe = currentUser && user.username === currentUser.username;
+            const userLvl = calculateLevel(user.xp || 0).level;
+
+            return `
+              <div class="leader-card" style="${isMe ? 'border-color: var(--accent); background: #162232;' : ''}">
+                <div class="rank-badge ${rankClass}">${rankIcon}</div>
+                <div style="flex:1;">
+                  <div style="font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px;">
+                    ${user.username} ${isMe ? '<span style="font-size:11px; color:var(--accent);">(Sen)</span>' : ''}
+                  </div>
+                  <div style="font-size:12px; color:var(--text-muted);">Seviye ${userLvl}</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-weight:800; color:var(--gold); font-size:14px;">${user.xp || 0} XP</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Puan</div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderAdminView() {
+      const main = document.getElementById('mainContent');
+      if (!currentUser || currentUser.role !== 'admin') {
+        main.innerHTML = `<div style="padding:20px; color:red;">Bu sayfaya erişim yetkiniz yoktur.</div>`;
+        return;
+      }
+
+      const allUsers = Object.values(usersData);
+
+      main.innerHTML = `
+        <div style="margin-bottom:16px;">
+          <h2 style="font-size:20px; font-weight:800; color:var(--accent);">👑 Berk Özel Yönetim Paneli</h2>
+          <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+            Sisteme kayıtlı üyeleri yönetin, şifrelerini güncelleyin, ilerlemelerini sıfırlayın veya hesapları silin.
+          </p>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:12px;">
+            <thead>
+              <tr style="background:#1c2430; color:var(--text-muted);">
+                <th style="padding:8px; border:1px solid var(--card-border); text-align:left;">Kullanıcı</th>
+                <th style="padding:8px; border:1px solid var(--card-border); text-align:left;">Şifre</th>
+                <th style="padding:8px; border:1px solid var(--card-border); text-align:center;">XP</th>
+                <th style="padding:8px; border:1px solid var(--card-border); text-align:center;">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${allUsers.map(u => `
+                <tr>
+                  <td style="padding:8px; border:1px solid var(--card-border); font-weight:700;">
+                    ${u.username} ${u.role === 'admin' ? '<span style="color:var(--accent); font-size:10px;">(Admin)</span>' : ''}
+                  </td>
+                  <td style="padding:8px; border:1px solid var(--card-border); color:#f1e05a;">
+                    ${u.password || '<i>Yok</i>'}
+                  </td>
+                  <td style="padding:8px; border:1px solid var(--card-border); text-align:center; color:var(--gold); font-weight:700;">
+                    ${u.xp || 0}
+                  </td>
+                  <td style="padding:8px; border:1px solid var(--card-border); text-align:center;">
+                    <div style="display:flex; gap:4px; justify-content:center; flex-wrap:wrap;">
+                      <button class="btn-table-action" onclick="adminResetUserProgress('${u.username}')">🔄 Sıfırla</button>
+                      <button class="btn-table-action" onclick="adminChangePassword('${u.username}')">🔑 Şifre</button>
+                      ${u.username !== 'berk' ? `<button class="btn-table-action btn-table-delete" onclick="adminDeleteUser('${u.username}')">🗑️ Sil</button>` : ''}
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function adminDeleteUser(username) {
+      if (username === 'berk') return alert('Admin hesabı silinemez!');
+      if (confirm(`'${username}' adlı kullanıcıyı kalıcı olarak silmek istiyor musunuz?`)) {
+        delete usersData[username];
+        saveDB();
+        renderAdminView();
+      }
+    }
+
+    function adminResetUserProgress(username) {
+      if (confirm(`'${username}' kullanıcısının antrenman tiklerini ve XP'sini sıfırlamak istiyor musunuz?`)) {
+        if (usersData[username]) {
+          usersData[username].routine.forEach(ex => ex.completed = false);
+          usersData[username].logs = {};
+          usersData[username].xp = 0;
+          saveDB();
+          renderAdminView();
+          alert(`${username} sıfırlandı.`);
+        }
+      }
+    }
+
+    function adminChangePassword(username) {
+      const newPass = prompt(`${username} için yeni şifreyi girin:`);
+      if (newPass !== null && newPass.trim() !== "") {
+        usersData[username].password = newPass.trim();
+        saveDB();
+        renderAdminView();
+        alert(`${username} şifresi güncellendi.`);
+      }
+    }
+
+    function dragStart(index, e) { draggedIndex = index; }
+    function dragOver(e) { e.preventDefault(); }
+    function drop(targetIndex, e) {
+      e.preventDefault();
+      if (draggedIndex === null || draggedIndex === targetIndex) return;
+      const routine = usersData[currentUser.username].routine;
+      const movedItem = routine.splice(draggedIndex, 1)[0];
+      routine.splice(targetIndex, 0, movedItem);
+      saveDB();
+      renderTodayView();
+    }
+
+    function openSingleExercise(index) {
+      currentExerciseIndex = index;
+      openWorkoutModal();
+      renderWorkoutStep();
+    }
+
+    function startWorkout() {
+      currentExerciseIndex = 0;
+      openWorkoutModal();
+      renderWorkoutStep();
+    }
+
+    // --- SİLİK VE GÖLGE HEDEF GÖRÜNÜMÜ ---
+    function renderWorkoutStep() {
+      const routine = usersData[currentUser.username].routine;
+      const ex = routine[currentExerciseIndex];
+      const box = document.getElementById('workoutRunnerBox');
+      const detail = EXERCISE_DATA[ex.name] || { muscle: "Tüm Vücut", tip: "Formunuzu koruyun.", svg: "" };
+      
+      const userRatings = (usersData[currentUser.username].ratings && usersData[currentUser.username].ratings[ex.id]) || { efficiency: 0, burn: 0, weight: 0 };
+      const savedLogs = (usersData[currentUser.username].logs && usersData[currentUser.username].logs[ex.id]) || [];
+
+      box.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div style="text-align:left;">
+            <h2 style="font-size:19px; font-weight:800; color:#fff;">${currentExerciseIndex + 1}. ${ex.name}</h2>
+            <div style="font-size:13px; color:var(--accent); font-weight:700; margin-top:3px;">(${detail.muscle})</div>
+          </div>
+          <button onclick="closeModal('workoutModal')" style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; padding:4px;">✕</button>
+        </div>
+
+        <div class="workout-stage">
+          ${detail.svg}
+        </div>
+
+        <div class="form-tip-box">
+          <b>Form Notu:</b> ${detail.tip}
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="font-size:12px; font-weight:700; color:var(--text-muted);">SET & HEDEF AĞIRLIK (SİLİK ÖNERİ)</div>
+            <span style="font-size:11px; color:var(--gold); font-weight:700;">⭐ XP Kazandırır</span>
+          </div>
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>SET</th>
+                <th>KİLO (KG)</th>
+                <th>TEKRAR</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${[1, 2, 3].map((setNum, idx) => {
+                const target = calculateSmartTarget(ex.id, idx);
+                // Eğer kullanıcı elle bir şey yazmışsa o değer, yazmamışsa İÇİ BOŞ (value="") ve placeholder olarak silik hedef
+                const userValKg = (savedLogs[idx] && savedLogs[idx].userEntered && savedLogs[idx].kg !== undefined) ? savedLogs[idx].kg : '';
+                const userValRep = (savedLogs[idx] && savedLogs[idx].userEntered && savedLogs[idx].rep !== undefined) ? savedLogs[idx].rep : '';
+
+                return `
+                  <tr>
+                    <td style="font-weight:700; color:var(--accent);">Set ${setNum}</td>
+                    <td>
+                      <input type="number" step="0.5" class="input-log" 
+                        placeholder="${target.kg}" 
+                        value="${userValKg}" 
+                        onchange="updateLog('${ex.id}', ${idx}, 'kg', this.value, ${target.kg})">
+                    </td>
+                    <td>
+                      <input type="number" class="input-log" 
+                        placeholder="${target.rep}" 
+                        value="${userValRep}" 
+                        onchange="updateLog('${ex.id}', ${idx}, 'rep', this.value, ${target.rep})">
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="runner-nav">
+          <button class="btn-nav" onclick="prevExercise()" ${currentExerciseIndex === 0 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>◀ Önceki</button>
+          <button class="btn-nav btn-done" onclick="completeAndNext()">${currentExerciseIndex === routine.length - 1 ? 'Antrenmanı Tamamla ✓' : 'Sonraki Harekete Geç ▶'}</button>
+        </div>
+
+        <div class="rating-section">
+          <div style="font-size:12px; font-weight:700; margin-bottom:8px; color:var(--accent);">⭐ Hareket Değerlendirmesi</div>
+          
+          <div class="rating-group">
+            <span class="rating-label">Verimlilik:</span>
+            <div class="stars" onclick="rateExercise('${ex.id}', 'efficiency', event)">
+              ${[1,2,3,4,5].map(star => `<span class="${star <= userRatings.efficiency ? 'active' : ''}" data-val="${star}">★</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="rating-group">
+            <span class="rating-label">Kas Yanması & Pump:</span>
+            <div class="stars" onclick="rateExercise('${ex.id}', 'burn', event)">
+              ${[1,2,3,4,5].map(star => `<span class="${star <= userRatings.burn ? 'active' : ''}" data-val="${star}">★</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="rating-group">
+            <span class="rating-label">Ağırlık Seviyesi:</span>
+            <div class="stars" onclick="rateExercise('${ex.id}', 'weight', event)">
+              ${[1,2,3,4,5].map(star => `<span class="${star <= userRatings.weight ? 'active' : ''}" data-val="${star}">★</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateLog(exId, setIndex, field, value, fallbackDefault) {
+      if (!usersData[currentUser.username].logs) usersData[currentUser.username].logs = {};
+      if (!usersData[currentUser.username].logs[exId]) {
+        usersData[currentUser.username].logs[exId] = [{}, {}, {}];
+      }
+      usersData[currentUser.username].logs[exId][setIndex][field] = value !== "" ? value : fallbackDefault;
+      usersData[currentUser.username].logs[exId][setIndex].userEntered = (value !== "");
+      saveDB();
+    }
+
+    function rateExercise(exId, type, event) {
+      const val = parseInt(event.target.getAttribute('data-val'));
+      if (!val) return;
+      if (!usersData[currentUser.username].ratings) usersData[currentUser.username].ratings = {};
+      if (!usersData[currentUser.username].ratings[exId]) {
+        usersData[currentUser.username].ratings[exId] = { efficiency: 0, burn: 0, weight: 0 };
+      }
+      usersData[currentUser.username].ratings[exId][type] = val;
+      saveDB();
+      renderWorkoutStep();
+    }
+
+    function prevExercise() {
+      if (currentExerciseIndex > 0) {
+        currentExerciseIndex--;
+        renderWorkoutStep();
+      }
+    }
+
+    function completeAndNext() {
+      const user = usersData[currentUser.username];
+      const routine = user.routine;
+      const ex = routine[currentExerciseIndex];
+      ex.completed = true;
+
+      // Kullanıcı kutucuğu doldurmadıysa silik hedefi baz alarak XP ve kayıt oluştur
+      if (!user.logs) user.logs = {};
+      if (!user.logs[ex.id]) {
+        user.logs[ex.id] = [0, 1, 2].map(idx => calculateSmartTarget(ex.id, idx));
+      } else {
+        [0, 1, 2].forEach(idx => {
+          const target = calculateSmartTarget(ex.id, idx);
+          if (!user.logs[ex.id][idx] || user.logs[ex.id][idx].kg === undefined || user.logs[ex.id][idx].kg === "") {
+            user.logs[ex.id][idx] = { kg: target.kg, rep: target.rep };
+          }
+        });
+      }
+
+      let gainedXp = 0;
+      if (ex.id === 'treadmill') {
+        gainedXp = 25 * 20;
+      } else {
+        user.logs[ex.id].forEach(s => {
+          const kg = parseFloat(s.kg) || 0;
+          const rep = parseInt(s.rep) || 10;
+          gainedXp += Math.round(kg * rep * 0.5);
+        });
+      }
+
+      user.xp = (user.xp || 0) + gainedXp;
+      saveDB();
+
+      if (currentExerciseIndex < routine.length - 1) {
+        currentExerciseIndex++;
+        renderWorkoutStep();
+      } else {
+        closeModal('workoutModal');
+        renderTodayView();
+        alert(`Tebrikler ${user.username}! Antrenmanı tamamladın ve +${gainedXp} XP kazandın! 🔥`);
+      }
+    }
+
+    function renderWeeklyView() {
+      const main = document.getElementById('mainContent');
+      main.innerHTML = `
+        <h2 style="margin-bottom:16px; font-weight:800;">📋 Haftalık Çalışma Çizelgesi</h2>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div class="day-banner"><div><b>Pazartesi</b><p>Full Body & Kardiyo (Antrenman)</p></div><span style="color:#3fb950;">✓</span></div>
+          <div class="day-banner" style="opacity:0.7;"><div><b>Salı</b><p>Off Day (Tam Dinlenme)</p></div><span>🛌</span></div>
+          <div class="day-banner"><div><b>Çarşamba</b><p>Full Body & Kardiyo (Antrenman)</p></div><span style="color:#3fb950;">✓</span></div>
+          <div class="day-banner" style="opacity:0.7;"><div><b>Perşembe</b><p>Off Day (Tam Dinlenme)</p></div><span>🛌</span></div>
+          <div class="day-banner"><div><b>Cuma</b><p>Full Body & Kardiyo (Antrenman)</p></div><span style="color:#3fb950;">✓</span></div>
+          <div class="day-banner"><div><b>Cumartesi</b><p>Aktif Kardiyo & Karın Bloku</p></div><span>🏃</span></div>
+          <div class="day-banner" style="opacity:0.7;"><div><b>Pazar</b><p>Off Day & Otomatik Plan Hazırlığı</p></div><span>🔄</span></div>
+        </div>
+      `;
+    }
+
+    function toggleSidebar(force) {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (force !== undefined) {
+        sidebar.classList.toggle('open', force);
+        overlay.classList.toggle('open', force);
+      } else {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+      }
+    }
+
+    function openLoginModal(isMandatory = false) {
+      const cancelBtn = document.getElementById('cancelLoginBtn');
+      cancelBtn.style.display = isMandatory ? 'none' : 'block';
+      document.getElementById('loginModal').classList.add('active');
+    }
+    function openWorkoutModal() { document.getElementById('workoutModal').classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function closeModalOnOverlay(e, modalId) { 
+      if (modalId === 'loginModal' && !currentUser) return;
+      if (e.target.id === modalId) closeModal(modalId); 
+    }
+
+    function handleLogin() {
+      const usernameInput = document.getElementById('loginUsername').value.trim().toLowerCase();
+      const passwordInput = document.getElementById('loginPassword').value;
+
+      if (!usernameInput) return alert('Lütfen bir kullanıcı adı girin.');
+      if (!passwordInput) return alert('Lütfen bir şifre girin.');
+
+      if (usersData[usernameInput]) {
+        if (usersData[usernameInput].password && usersData[usernameInput].password !== passwordInput) {
+          return alert('Hatalı şifre! Lütfen bu hesap için belirlediğiniz şifreyi girin.');
+        }
+        if (!usersData[usernameInput].password) {
+          usersData[usernameInput].password = passwordInput;
+        }
+      } else {
+        usersData[usernameInput] = {
+          username: usernameInput,
+          password: passwordInput,
+          role: usernameInput === 'berk' ? 'admin' : 'member',
+          routine: JSON.parse(JSON.stringify(INITIAL_ROUTINE)),
+          ratings: {},
+          logs: {},
+          xp: 0,
+          week: 1
+        };
+      }
+
+      currentUser = { username: usernameInput, role: usersData[usernameInput].role };
+      saveDB();
+      closeModal('loginModal');
+      renderHeader();
+      renderTodayView();
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      localStorage.removeItem('berkfit_user');
+      renderHeader();
+      openLoginModal(true);
+    }
+
+    init();
+  </script>
+</body>
+</html>
