@@ -21,6 +21,7 @@
       --gold: #f1e05a;
       --silver: #e6edf3;
       --bronze: #d29922;
+      --fire: #ff5722;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -58,17 +59,99 @@
 
     main { flex: 1; max-width: 580px; width: 100%; margin: 0 auto; padding: 16px; }
 
-    .user-level-card {
-      background: linear-gradient(135deg, #16202e, #0f1622);
+    .slider-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 16px;
+      overflow: hidden;
+      border-radius: 16px;
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 14px 18px;
-      margin-bottom: 14px;
+      background: linear-gradient(135deg, #16202e, #0f1622);
+    }
+    .slider-track {
+      display: flex;
+      width: 200%;
+      transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .slide-card {
+      width: 50%;
+      padding: 16px 18px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      justify-content: center;
+      position: relative;
     }
-    .level-header { display: flex; justify-content: space-between; align-items: center; }
+    .slider-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 800;
+      z-index: 10;
+    }
+    .slider-btn.next { right: 10px; }
+    .slider-btn.prev { left: 10px; }
+
+    .slider-dots {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 5;
+    }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #30363d;
+      transition: all 0.3s;
+    }
+    .dot.active {
+      width: 16px;
+      border-radius: 4px;
+      background: var(--accent);
+    }
+
+    .streak-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 10px;
+    }
+    .streak-info h3 {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .streak-val {
+      font-size: 26px;
+      font-weight: 900;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .streak-fire {
+      font-size: 30px;
+      animation: flamePulse 1.8s infinite alternate;
+    }
+    @keyframes flamePulse {
+      0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(255, 87, 34, 0.4)); }
+      100% { transform: scale(1.15); filter: drop-shadow(0 0 12px rgba(255, 87, 34, 0.9)); }
+    }
+
+    .level-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 0 8px; }
     .level-title { font-size: 13px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 6px; }
     .xp-count { font-size: 13px; font-weight: 800; color: var(--gold); }
     .xp-bar-bg { width: 100%; height: 8px; background: #090d13; border-radius: 10px; overflow: hidden; border: 1px solid var(--card-border); }
@@ -86,6 +169,15 @@
     }
     .day-banner h2 { font-size: 18px; font-weight: 800; }
     .day-banner p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+    .off-day-box {
+      background: #1c2430;
+      border: 1px dashed #30363d;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
 
     .btn-start-workout {
       width: 100%;
@@ -149,6 +241,21 @@
     .exercise-sets { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
     .status-check { font-size: 22px; color: #30363d; }
     .status-check.completed { color: #3fb950; font-weight: 900; }
+
+    .weekly-item {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .weekly-today {
+      border-color: var(--accent);
+      background: #151f2e;
+    }
 
     .leader-card {
       background: var(--card);
@@ -277,7 +384,7 @@
     <ul class="sidebar-nav">
       <li><a href="#" class="active" onclick="switchView('today')">📅 Günün Antrenmanı</a></li>
       <li><a href="#" onclick="switchView('leaderboard')">🏆 Liderlik Tablosu (XP)</a></li>
-      <li><a href="#" onclick="switchView('weekly')">📋 Haftalık Plan & Çizelge</a></li>
+      <li><a href="#" onclick="switchView('weekly')">📋 Haftalık Plan (14 Eylüle Kadar)</a></li>
       <li id="adminMenuLink" style="display: none;"><a href="#" onclick="switchView('admin')">👑 Admin & Üye Paneli</a></li>
     </ul>
   </aside>
@@ -295,12 +402,10 @@
 
   <main id="mainContent"></main>
 
-  <!-- Antrenman Odak Ekranı -->
   <div class="modal-overlay" id="workoutModal">
     <div class="modal-box" id="workoutRunnerBox"></div>
   </div>
 
-  <!-- Üyelik / Giriş Ekranı -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box" style="margin-top: 40px;">
       <div style="text-align:center; margin-bottom:6px;">
@@ -310,19 +415,20 @@
         </p>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:10px;">
+      <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();" style="display:flex; flex-direction:column; gap:10px;">
         <div>
           <label style="font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:4px; display:block;">Kullanıcı Adı:</label>
-          <input type="text" id="loginUsername" placeholder="Örn: berk veya ahmet" style="width:100%; background:#090d13; border:1px solid var(--card-border); color:#fff; padding:12px; border-radius:8px; font-size:14px;">
+          <input type="text" id="loginUsername" placeholder="Örn: berk veya ahmet" autocomplete="username" style="width:100%; background:#090d13; border:1px solid var(--card-border); color:#fff; padding:12px; border-radius:8px; font-size:14px;">
         </div>
 
         <div>
           <label style="font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:4px; display:block;">Şifre (Sınır Yok):</label>
-          <input type="password" id="loginPassword" placeholder="İstediğin şifreyi gir" style="width:100%; background:#090d13; border:1px solid var(--card-border); color:#fff; padding:12px; border-radius:8px; font-size:14px;">
+          <input type="password" id="loginPassword" placeholder="İstediğin şifreyi gir" autocomplete="current-password" style="width:100%; background:#090d13; border:1px solid var(--card-border); color:#fff; padding:12px; border-radius:8px; font-size:14px;">
         </div>
-      </div>
 
-      <button class="btn-start-workout" style="margin-top:8px; margin-bottom:0;" onclick="handleLogin()">Giriş Yap / Hesabı Oluştur</button>
+        <button type="submit" class="btn-start-workout" style="margin-top:8px; margin-bottom:0;">Giriş Yap / Hesabı Oluştur</button>
+      </form>
+
       <button id="cancelLoginBtn" onclick="closeModal('loginModal')" style="background:none; border:none; color:var(--text-muted); font-size:13px; cursor:pointer; display:none; margin-top:10px;">Kapat</button>
     </div>
   </div>
@@ -535,11 +641,26 @@
       { id: "treadmill", name: "Eğimli Yürüyüş Bandı", sets: "20-25 dk | Eğim %8-10", completed: false }
     ];
 
+    // --- 14 EYLÜL'E KADAR GEÇERLİ HAFTALIK DÜZEN (SADECE PERŞEMBE VE PAZAR OFF) ---
+    const WEEKLY_SCHEDULE = [
+      { dayIndex: 1, name: "Pazartesi", isOff: false, label: "Full Body & Kardiyo (Antrenman)" },
+      { dayIndex: 2, name: "Salı", isOff: false, label: "Full Body & Kardiyo (Antrenman)" },
+      { dayIndex: 3, name: "Çarşamba", isOff: false, label: "Full Body & Kardiyo (Antrenman)" },
+      { dayIndex: 4, name: "Perşembe", isOff: true, label: "Off Day (Dinlenme Günü)" },
+      { dayIndex: 5, name: "Cuma", isOff: false, label: "Full Body & Kardiyo (Antrenman)" },
+      { dayIndex: 6, name: "Cumartesi", isOff: false, label: "Full Body & Kardiyo (Antrenman)" },
+      { dayIndex: 0, name: "Pazar", isOff: true, label: "Off Day (Dinlenme Günü)" }
+    ];
+
     let defaultUsers = {
-      'berk': { username: 'berk', password: '', role: 'admin', routine: INITIAL_ROUTINE, ratings: {}, logs: {}, xp: 0, week: 1 }
+      'berk': { 
+        username: 'berk', password: '', role: 'admin', 
+        routine: INITIAL_ROUTINE, ratings: {}, logs: {}, xp: 0, week: 1,
+        streak: 1, lastLoginDate: new Date().toDateString(),
+        workoutHistory: {}
+      }
     };
 
-    // --- KALICI OTURUM KONTROLÜ (LOCALSTORAGE) ---
     let currentUser = null;
     try {
       const storedUser = localStorage.getItem('berkfit_user');
@@ -549,6 +670,7 @@
     let usersData = JSON.parse(localStorage.getItem('berkfit_users_db')) || defaultUsers;
     let currentExerciseIndex = 0;
     let draggedIndex = null;
+    let currentSlide = 0;
 
     function saveDB() {
       localStorage.setItem('berkfit_users_db', JSON.stringify(usersData));
@@ -556,6 +678,28 @@
         localStorage.setItem('berkfit_user', JSON.stringify(currentUser));
       } else {
         localStorage.removeItem('berkfit_user');
+      }
+    }
+
+    function updateDailyStreak(user) {
+      const today = new Date().toDateString();
+      if (!user.lastLoginDate) {
+        user.streak = 1;
+        user.lastLoginDate = today;
+        return;
+      }
+
+      if (user.lastLoginDate !== today) {
+        const last = new Date(user.lastLoginDate);
+        const now = new Date(today);
+        const diffDays = Math.round((now - last) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          user.streak = (user.streak || 0) + 1;
+        } else if (diffDays > 1) {
+          user.streak = 1;
+        }
+        user.lastLoginDate = today;
       }
     }
 
@@ -586,15 +730,14 @@
       return { kg: defaultTarget.kg, rep: defaultTarget.rep };
     }
 
-    // --- BAŞLATMA & KALICI OTURUM KONTROLÜ ---
     function init() {
       renderHeader();
       if (currentUser && currentUser.username && usersData[currentUser.username]) {
-        // Kullanıcı önceden giriş yapmış, modalı açma, direkt sayfayı getir
+        updateDailyStreak(usersData[currentUser.username]);
+        saveDB();
         closeModal('loginModal');
         renderTodayView();
       } else {
-        // İlk kez giriliyor veya oturum kapatılmış
         openLoginModal(true);
       }
     }
@@ -629,42 +772,102 @@
       else if (view === 'admin') renderAdminView();
     }
 
+    function setSlide(index) {
+      currentSlide = index;
+      const track = document.getElementById('sliderTrack');
+      const dot0 = document.getElementById('dot0');
+      const dot1 = document.getElementById('dot1');
+      if (!track) return;
+
+      track.style.transform = `translateX(-${index * 50}%)`;
+      if (dot0 && dot1) {
+        dot0.classList.toggle('active', index === 0);
+        dot1.classList.toggle('active', index === 1);
+      }
+    }
+
     function renderTodayView() {
       const main = document.getElementById('mainContent');
       if (!currentUser) {
         main.innerHTML = `<div style="text-align:center; padding:40px;"><p>Antrenman programını görmek için lütfen giriş yapın.</p></div>`;
         return;
       }
-      const userData = usersData[currentUser.username] || { xp: 0 };
+      const userData = usersData[currentUser.username] || { xp: 0, streak: 1 };
       const routine = userData.routine || INITIAL_ROUTINE;
       const { level, progressPercent, nextLevelXp } = calculateLevel(userData.xp || 0);
 
+      // Günün Off Day kontrolü (Perşembe: 4, Pazar: 0)
+      const todayDayIndex = new Date().getDay();
+      const currentDayConfig = WEEKLY_SCHEDULE.find(d => d.dayIndex === todayDayIndex) || { isOff: false, name: "Bugün" };
+
       main.innerHTML = `
-        <div class="user-level-card">
-          <div class="level-header">
-            <div class="level-title">⚡ SEVİYE ${level} SPORCU</div>
-            <div class="xp-count">${userData.xp || 0} XP</div>
+        <div class="slider-wrapper">
+          <button class="slider-btn prev" onclick="setSlide(0)" style="${currentSlide === 0 ? 'display:none;' : ''}">❮</button>
+          <button class="slider-btn next" onclick="setSlide(1)" style="${currentSlide === 1 ? 'display:none;' : ''}">❯</button>
+          
+          <div class="slider-track" id="sliderTrack" style="transform: translateX(-${currentSlide * 50}%);">
+            <div class="slide-card">
+              <div class="streak-container">
+                <div class="streak-info">
+                  <h3>GÜNLÜK SPOR SERİSİ</h3>
+                  <div class="streak-val">
+                    ${userData.streak || 1} GÜN
+                    <span class="streak-fire">🔥</span>
+                  </div>
+                  <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                    ${(userData.streak || 1) >= 3 ? 'Alev alevsin! Zinciri kırma.' : 'Harika başlangıç! Tempoyu koru.'}
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <button onclick="setSlide(1)" style="background:#1c2430; border:1px solid var(--card-border); color:var(--accent); font-size:11px; font-weight:700; padding:6px 10px; border-radius:8px; cursor:pointer;">
+                    Seviye ❯
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="slide-card">
+              <div class="level-header">
+                <div class="level-title">⚡ SEVİYE ${level} SPORCU</div>
+                <div class="xp-count">${userData.xp || 0} XP</div>
+              </div>
+              <div class="xp-bar-bg">
+                <div class="xp-bar-fill" style="width: ${progressPercent}%;"></div>
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; margin-top:6px; padding: 0 4px;">
+                <span>Seviye ${level}</span>
+                <span>Sonraki: ${nextLevelXp} XP</span>
+              </div>
+            </div>
           </div>
-          <div class="xp-bar-bg">
-            <div class="xp-bar-fill" style="width: ${progressPercent}%;"></div>
-          </div>
-          <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between;">
-            <span>Seviye ${level}</span>
-            <span>Sonraki Seviye: ${nextLevelXp} XP</span>
+
+          <div class="slider-dots">
+            <div class="dot ${currentSlide === 0 ? 'active' : ''}" id="dot0" onclick="setSlide(0)"></div>
+            <div class="dot ${currentSlide === 1 ? 'active' : ''}" id="dot1" onclick="setSlide(1)"></div>
           </div>
         </div>
 
         <div class="day-banner">
           <div>
-            <h2>Pazartesi: Full Body</h2>
-            <p>1. Ay Programı • ${routine.length} Egzersiz</p>
+            <h2>${currentDayConfig.name}: ${currentDayConfig.isOff ? 'Off Day (Dinlenme)' : 'Full Body'}</h2>
+            <p>14 Eylül Özel Programı • ${currentDayConfig.isOff ? 'Dinlenme Günü (Opsiyonel Antrenman)' : routine.length + ' Egzersiz'}</p>
           </div>
-          <span style="font-size:26px;">🔥</span>
+          <span style="font-size:26px;">${currentDayConfig.isOff ? '🛌' : '🔥'}</span>
         </div>
 
-        <button class="btn-start-workout" onclick="startWorkout()">
-          ▶ Antrenmana Başla
-        </button>
+        ${currentDayConfig.isOff ? `
+          <div class="off-day-box">
+            <div style="font-size:14px; font-weight:700; color:var(--accent); margin-bottom:4px;">Bugün Normalde Dinlenme Günü</div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Kendini enerjik hissediyorsan antrenmana başlayabilirsin. Yaptığın antrenman sisteme ve liderlik tablosuna tam puanla işlenir.</p>
+            <button class="btn-start-workout" style="margin-bottom:0;" onclick="startWorkout()">
+              ⚡ Yine de Antrenmana Başla
+            </button>
+          </div>
+        ` : `
+          <button class="btn-start-workout" onclick="startWorkout()">
+            ▶ Antrenmana Başla
+          </button>
+        `}
 
         <button class="btn-reset-workout" onclick="resetMyWorkout()">
           🔄 Antrenmanı Sıfırla (Tikleri & Test Verilerini Temizle)
@@ -689,20 +892,84 @@
           }).join('')}
         </div>
       `;
+
+      initTouchSwipe();
+    }
+
+    function initTouchSwipe() {
+      const wrapper = document.querySelector('.slider-wrapper');
+      if (!wrapper) return;
+      let touchStartX = 0;
+      wrapper.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+      wrapper.addEventListener('touchend', e => {
+        let touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 45) setSlide(1);
+        if (touchEndX - touchStartX > 45) setSlide(0);
+      }, { passive: true });
+    }
+
+    // --- 14 EYLÜLE KADAR HAFTALIK PLAN GÖRÜNÜMÜ ---
+    function renderWeeklyView() {
+      const main = document.getElementById('mainContent');
+      const todayDayIndex = new Date().getDay();
+      const user = usersData[currentUser.username] || {};
+      const history = user.workoutHistory || {};
+      const todayKey = new Date().toDateString();
+
+      main.innerHTML = `
+        <div style="margin-bottom:16px;">
+          <h2 style="font-size:20px; font-weight:800; display:flex; align-items:center; gap:8px;">
+            📋 Haftalık Plan (14 Eylüle Kadar)
+          </h2>
+          <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+            Haftanın 5 günü antrenman; sadece <b>Perşembe</b> ve <b>Pazar</b> günleri dinlenme. Off günlerde de antrenman yapabilirsiniz.
+          </p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${WEEKLY_SCHEDULE.map(item => {
+            const isToday = item.dayIndex === todayDayIndex;
+            const completedToday = isToday && user.routine && user.routine.some(ex => ex.completed);
+
+            return `
+              <div class="weekly-item ${isToday ? 'weekly-today' : ''}" style="${item.isOff ? 'opacity: 0.85;' : ''}">
+                <div>
+                  <div style="font-weight:800; font-size:15px; display:flex; align-items:center; gap:6px;">
+                    ${item.name}
+                    ${isToday ? '<span style="font-size:11px; color:var(--accent); font-weight:700;">(Bugün)</span>' : ''}
+                  </div>
+                  <div style="font-size:12px; color:${item.isOff ? 'var(--warning)' : 'var(--text-muted)'}; margin-top:3px;">
+                    ${item.label}
+                  </div>
+                </div>
+
+                <div style="text-align:right;">
+                  ${completedToday ? `
+                    <span style="color:#3fb950; font-weight:800; font-size:16px;">✓ Tamamlandı</span>
+                  ` : (item.isOff ? `
+                    <button onclick="switchView('today')" style="background:#21262d; border:1px solid var(--card-border); color:var(--text); font-size:11px; padding:6px 10px; border-radius:6px; cursor:pointer;">
+                      Serbest Gir ▶
+                    </button>
+                  ` : `
+                    <span style="color:var(--text-muted); font-size:13px;">Antrenman Günü</span>
+                  `)}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
     }
 
     function resetMyWorkout() {
       if (!confirm('Bugünkü antrenmandaki tüm yeşil tikleri ve test kayıtlarını sıfırlamak istiyor musunuz?')) return;
-      
       const user = usersData[currentUser.username];
       if (user && user.routine) {
         user.routine.forEach(ex => ex.completed = false);
         user.logs = {};
-        
         if (confirm('Test sırasında kazanılan XP puanınızı da 0 yapmak ister misiniz?')) {
           user.xp = 0;
         }
-        
         saveDB();
         renderTodayView();
         alert('Antrenman sıfırlandı! Yeni bir antrenmana hazırsınız.');
@@ -738,7 +1005,10 @@
                   <div style="font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px;">
                     ${user.username} ${isMe ? '<span style="font-size:11px; color:var(--accent);">(Sen)</span>' : ''}
                   </div>
-                  <div style="font-size:12px; color:var(--text-muted);">Seviye ${userLvl}</div>
+                  <div style="font-size:12px; color:var(--text-muted); display:flex; gap:10px; margin-top:2px;">
+                    <span>Seviye ${userLvl}</span>
+                    <span>🔥 ${user.streak || 1} Gün Seri</span>
+                  </div>
                 </div>
                 <div style="text-align:right;">
                   <div style="font-weight:800; color:var(--gold); font-size:14px;">${user.xp || 0} XP</div>
@@ -764,7 +1034,7 @@
         <div style="margin-bottom:16px;">
           <h2 style="font-size:20px; font-weight:800; color:var(--accent);">👑 Berk Özel Yönetim Paneli</h2>
           <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
-            Sisteme kayıtlı üyeleri yönetin, şifrelerini güncelleyin, ilerlemelerini sıfırlayın veya hesapları silin.
+            Sisteme kayıtlı üyeleri yönetin, şifrelerini güncelleyin, serilerini ve ilerlemelerini sıfırlayın.
           </p>
         </div>
 
@@ -774,6 +1044,7 @@
               <tr style="background:#1c2430; color:var(--text-muted);">
                 <th style="padding:8px; border:1px solid var(--card-border); text-align:left;">Kullanıcı</th>
                 <th style="padding:8px; border:1px solid var(--card-border); text-align:left;">Şifre</th>
+                <th style="padding:8px; border:1px solid var(--card-border); text-align:center;">Seri</th>
                 <th style="padding:8px; border:1px solid var(--card-border); text-align:center;">XP</th>
                 <th style="padding:8px; border:1px solid var(--card-border); text-align:center;">İşlemler</th>
               </tr>
@@ -786,6 +1057,9 @@
                   </td>
                   <td style="padding:8px; border:1px solid var(--card-border); color:#f1e05a;">
                     ${u.password || '<i>Yok</i>'}
+                  </td>
+                  <td style="padding:8px; border:1px solid var(--card-border); text-align:center; font-weight:700; color:#ff5722;">
+                    🔥 ${u.streak || 1}
                   </td>
                   <td style="padding:8px; border:1px solid var(--card-border); text-align:center; color:var(--gold); font-weight:700;">
                     ${u.xp || 0}
@@ -815,11 +1089,12 @@
     }
 
     function adminResetUserProgress(username) {
-      if (confirm(`'${username}' kullanıcısının antrenman tiklerini ve XP'sini sıfırlamak istiyor musunuz?`)) {
+      if (confirm(`'${username}' kullanıcısının antrenman tiklerini, serisini ve XP'sini sıfırlamak istiyor musunuz?`)) {
         if (usersData[username]) {
           usersData[username].routine.forEach(ex => ex.completed = false);
           usersData[username].logs = {};
           usersData[username].xp = 0;
+          usersData[username].streak = 1;
           saveDB();
           renderAdminView();
           alert(`${username} sıfırlandı.`);
@@ -1031,22 +1306,6 @@
       }
     }
 
-    function renderWeeklyView() {
-      const main = document.getElementById('mainContent');
-      main.innerHTML = `
-        <h2 style="margin-bottom:16px; font-weight:800;">📋 Haftalık Çalışma Çizelgesi</h2>
-        <div style="display:flex; flex-direction:column; gap:12px;">
-          <div class="day-banner"><div><b>Pazartesi</b><p>Full Body & Kardiyo (Antrenman)</p></div><span style="color:#3fb950;">✓</span></div>
-          <div class="day-banner" style="opacity:0.7;"><div><b>Salı</b><p>Off Day (Tam Dinlenme)</p></div><span>🛌</span></div>
-          <div class="day-banner"><div><b>Çarşamba</b><p>Full Body & Kardiyo (Antrenman)</p></div><span style="color:#3fb950;">✓</span></div>
-          <div class="day-banner" style="opacity:0.7;"><div><b>Perşembe</b><p>Off Day (Tam Dinlenme)</p></div><span>🛌</span></div>
-          <div class="day-banner"><div><b>Cuma</b><p>Full Body & Kardiyo (Antrenman)</p></div><span style="color:#3fb950;">✓</span></div>
-          <div class="day-banner" style="opacity:0.7;"><div><b>Cumartesi</b><p>Aktif Kardiyo & Karın Bloku</p></div><span>🏃</span></div>
-          <div class="day-banner" style="opacity:0.7;"><div><b>Pazar</b><p>Off Day & Otomatik Plan Hazırlığı</p></div><span>🔄</span></div>
-        </div>
-      `;
-    }
-
     function toggleSidebar(force) {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebarOverlay');
@@ -1067,7 +1326,6 @@
     function openWorkoutModal() { document.getElementById('workoutModal').classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    // --- KALICI GİRİŞ FONKSİYONU ---
     function handleLogin() {
       const usernameInput = document.getElementById('loginUsername').value.trim().toLowerCase();
       const passwordInput = document.getElementById('loginPassword').value;
@@ -1091,22 +1349,24 @@
           ratings: {},
           logs: {},
           xp: 0,
-          week: 1
+          week: 1,
+          streak: 1,
+          lastLoginDate: new Date().toDateString()
         };
       }
 
       currentUser = { username: usernameInput, role: usersData[usernameInput].role };
-      saveDB(); // Cihazın hafızasına kalıcı kaydeder
+      updateDailyStreak(usersData[usernameInput]);
+      saveDB();
       closeModal('loginModal');
       renderHeader();
       renderTodayView();
     }
 
-    // --- MANUEL ÇIKIŞ YAPILANA KADAR OTURUM KORUNUR ---
     function handleLogout() {
       if (confirm('Hesabınızdan çıkış yapmak istediğinize emin misiniz?')) {
         currentUser = null;
-        localStorage.removeItem('berkfit_user'); // Kalıcı oturumu sadece burada temizler
+        localStorage.removeItem('berkfit_user');
         renderHeader();
         openLoginModal(true);
       }
