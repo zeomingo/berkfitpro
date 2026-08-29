@@ -59,6 +59,21 @@
 
     main { flex: 1; max-width: 580px; width: 100%; margin: 0 auto; padding: 16px; }
 
+    /* SEZON ÖNCESİ GERİ SAYIM BANNERI */
+    .pre-season-alert {
+      background: rgba(210, 153, 34, 0.12);
+      border: 1px solid rgba(210, 153, 34, 0.35);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    /* SLIDER & KART YAPISI (SERİ <-> SEVİYE) */
     .slider-wrapper {
       position: relative;
       width: 100%;
@@ -179,6 +194,18 @@
       margin-bottom: 16px;
     }
 
+    .bonus-badge {
+      display: inline-block;
+      background: rgba(255, 87, 34, 0.15);
+      border: 1px solid rgba(255, 87, 34, 0.4);
+      color: #ff5722;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-top: 6px;
+    }
+
     .btn-start-workout {
       width: 100%;
       background: linear-gradient(180deg, #2ea043, #238636);
@@ -255,6 +282,7 @@
     .weekly-today {
       border-color: var(--accent);
       background: #151f2e;
+      box-shadow: 0 0 12px rgba(56, 139, 253, 0.2);
     }
 
     .leader-card {
@@ -383,8 +411,8 @@
     </div>
     <ul class="sidebar-nav">
       <li><a href="#" class="active" onclick="switchView('today')">📅 Günün Antrenmanı</a></li>
-      <li><a href="#" onclick="switchView('leaderboard')">🏆 Liderlik Tablosu (XP)</a></li>
-      <li><a href="#" onclick="switchView('weekly')">📋 Haftalık Plan (14 Eylüle Kadar)</a></li>
+      <li><a href="#" onclick="switchView('leaderboard')">🏆 Liderlik Tablosu</a></li>
+      <li><a href="#" onclick="switchView('weekly')">📋 Gerçek Takvim (31 Ağu - 14 Eyl)</a></li>
       <li id="adminMenuLink" style="display: none;"><a href="#" onclick="switchView('admin')">👑 Admin & Üye Paneli</a></li>
     </ul>
   </aside>
@@ -411,7 +439,7 @@
       <div style="text-align:center; margin-bottom:6px;">
         <h3 style="font-weight: 800; font-size:20px;">BerkFit Pro'ya Katıl</h3>
         <p style="font-size: 13px; color: var(--text-muted); margin-top:4px;">
-          Giriş yaptıktan sonra bu cihazda oturumunuz sürekli açık kalacaktır.
+          Resmi sezon 31 Ağustos'ta başlıyor! Hesabını oluştur ve hazır ol.
         </p>
       </div>
 
@@ -641,23 +669,36 @@
       { id: "treadmill", name: "Eğimli Yürüyüş Bandı", sets: "20-25 dk | Eğim %8-10", completed: false }
     ];
 
-    // --- 14 EYLÜL'E KADAR GEÇERLİ HAFTALIK DÜZEN (SADECE PERŞEMBE VE PAZAR OFF) ---
-    const WEEKLY_SCHEDULE = [
-      { dayIndex: 1, name: "Pazartesi", isOff: false, label: "Full Body & Kardiyo (Antrenman)" },
-      { dayIndex: 2, name: "Salı", isOff: false, label: "Full Body & Kardiyo (Antrenman)" },
-      { dayIndex: 3, name: "Çarşamba", isOff: false, label: "Full Body & Kardiyo (Antrenman)" },
-      { dayIndex: 4, name: "Perşembe", isOff: true, label: "Off Day (Dinlenme Günü)" },
-      { dayIndex: 5, name: "Cuma", isOff: false, label: "Full Body & Kardiyo (Antrenman)" },
-      { dayIndex: 6, name: "Cumartesi", isOff: false, label: "Full Body & Kardiyo (Antrenman)" },
-      { dayIndex: 0, name: "Pazar", isOff: true, label: "Off Day (Dinlenme Günü)" }
+    // --- 31 AĞUSTOS - 14 EYLÜL GERÇEK ZAMANLI TAKVİM LİSTESİ ---
+    const REAL_SCHEDULE_2026 = [
+      { dateStr: "2026-08-31", displayDate: "31 Ağustos Pazartesi", isOff: false, label: "Full Body (Resmi Sezon Başlangıcı 🔥)" },
+      { dateStr: "2026-09-01", displayDate: "1 Eylül Salı", isOff: false, label: "Full Body & Kardiyo" },
+      { dateStr: "2026-09-02", displayDate: "2 Eylül Çarşamba", isOff: false, label: "Full Body & Kardiyo" },
+      { dateStr: "2026-09-03", displayDate: "3 Eylül Perşembe", isOff: true, label: "Off Day (Dinlenme / 1.5x Bonus)" },
+      { dateStr: "2026-09-04", displayDate: "4 Eylül Cuma", isOff: false, label: "Full Body & Kardiyo" },
+      { dateStr: "2026-09-05", displayDate: "5 Eylül Cumartesi", isOff: false, label: "Full Body & Kardiyo" },
+      { dateStr: "2026-09-06", displayDate: "6 Eylül Pazar", isOff: true, label: "Off Day (Dinlenme / 1.5x Bonus)" },
+      { dateStr: "2026-09-07", displayDate: "7 Eylül Pazartesi", isOff: false, label: "Full Body & Kardiyo" },
+      { dateStr: "2026-09-08", displayDate: "8 Eylül Salı", isOff: false, label: "Full Body & Kardiyo" },
+      { dateStr: "2026-09-09", displayDate: "9 Eylül Çarşamba", isOff: false, label: "Full Body & Kardiyo" },
+      { dateStr: "2026-09-10", displayDate: "10 Eylül Perşembe", isOff: true, label: "Off Day (Dinlenme / 1.5x Bonus)" },
+      { dateStr: "2026-09-11", displayDate: "11 Eylül Cuma", isOff: false, label: "Full Body & Kardiyo" },
+      { dateStr: "2026-09-12", displayDate: "12 Eylül Cumartesi", isOff: false, label: "Full Body & Kardiyo" },
+      { dateStr: "2026-09-13", displayDate: "13 Eylül Pazar", isOff: true, label: "Off Day (Dinlenme / 1.5x Bonus)" },
+      { dateStr: "2026-09-14", displayDate: "14 Eylül Pazartesi", isOff: false, label: "Full Body (1. Dönem Kapanış)" }
     ];
+
+    // Sezonun Resmi Başlangıç Zamanı: 31 Ağustos 2026 00:00:00
+    const SEASON_START_DATE = new Date("2026-08-31T00:00:00");
+
+    const CLOUD_MASTER_KEY = "$2a$10$7vN34h5PzCj15WwV0hFvXe7t0zN230.fQZ8XqVb9G0wL1v5WqP9Te";
 
     let defaultUsers = {
       'berk': { 
         username: 'berk', password: '', role: 'admin', 
         routine: INITIAL_ROUTINE, ratings: {}, logs: {}, xp: 0, week: 1,
         streak: 1, lastLoginDate: new Date().toDateString(),
-        workoutHistory: {}
+        seasonStarted: false
       }
     };
 
@@ -672,12 +713,57 @@
     let draggedIndex = null;
     let currentSlide = 0;
 
+    async function syncCloudDB(fetchFirst = false) {
+      try {
+        if (fetchFirst) {
+          const res = await fetch(`https://api.jsonbin.io/v3/b/66d3a812acd3cb34a87b8f9e/latest`, {
+            headers: { "X-Master-Key": CLOUD_MASTER_KEY }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.record && Object.keys(data.record).length > 0) {
+              usersData = { ...usersData, ...data.record };
+              localStorage.setItem('berkfit_users_db', JSON.stringify(usersData));
+            }
+          }
+        } else {
+          fetch(`https://api.jsonbin.io/v3/b/66d3a812acd3cb34a87b8f9e`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Master-Key": CLOUD_MASTER_KEY
+            },
+            body: JSON.stringify(usersData)
+          }).catch(() => {});
+        }
+      } catch (err) {}
+    }
+
     function saveDB() {
       localStorage.setItem('berkfit_users_db', JSON.stringify(usersData));
       if (currentUser) {
         localStorage.setItem('berkfit_user', JSON.stringify(currentUser));
       } else {
         localStorage.removeItem('berkfit_user');
+      }
+      syncCloudDB(false);
+    }
+
+    // --- 31 AĞUSTOS KONTROLÜ VE PUAN SIFIRLAMA OTOMASYONU ---
+    function checkSeasonStartReset() {
+      const now = new Date();
+      // 31 Ağustos 00:00'dan sonra ise ve kullanıcı henüz sezona sıfırlanarak başlamadıysa
+      if (now >= SEASON_START_DATE) {
+        Object.keys(usersData).forEach(u => {
+          if (!usersData[u].seasonStarted) {
+            usersData[u].xp = 0; // Test puanlarını sıfırla
+            usersData[u].streak = 1;
+            usersData[u].logs = {};
+            usersData[u].routine = JSON.parse(JSON.stringify(INITIAL_ROUTINE));
+            usersData[u].seasonStarted = true;
+          }
+        });
+        saveDB();
       }
     }
 
@@ -730,8 +816,11 @@
       return { kg: defaultTarget.kg, rep: defaultTarget.rep };
     }
 
-    function init() {
+    async function init() {
       renderHeader();
+      await syncCloudDB(true);
+      checkSeasonStartReset();
+
       if (currentUser && currentUser.username && usersData[currentUser.username]) {
         updateDailyStreak(usersData[currentUser.username]);
         saveDB();
@@ -792,15 +881,39 @@
         main.innerHTML = `<div style="text-align:center; padding:40px;"><p>Antrenman programını görmek için lütfen giriş yapın.</p></div>`;
         return;
       }
+
+      checkSeasonStartReset();
       const userData = usersData[currentUser.username] || { xp: 0, streak: 1 };
       const routine = userData.routine || INITIAL_ROUTINE;
       const { level, progressPercent, nextLevelXp } = calculateLevel(userData.xp || 0);
 
-      // Günün Off Day kontrolü (Perşembe: 4, Pazar: 0)
-      const todayDayIndex = new Date().getDay();
-      const currentDayConfig = WEEKLY_SCHEDULE.find(d => d.dayIndex === todayDayIndex) || { isOff: false, name: "Bugün" };
+      const now = new Date();
+      const isPreSeason = now < SEASON_START_DATE;
+
+      // Gerçek zamanlı tarih formatlama (YYYY-MM-DD)
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const todayISO = `${year}-${month}-${day}`;
+
+      const matchedDayConfig = REAL_SCHEDULE_2026.find(d => d.dateStr === todayISO);
+      const isOffDay = matchedDayConfig ? matchedDayConfig.isOff : (now.getDay() === 4 || now.getDay() === 0);
+
+      const streakMultiplier = Math.min(2.0, 1 + ((userData.streak || 1) * 0.05)).toFixed(2);
 
       main.innerHTML = `
+        ${isPreSeason ? `
+          <div class="pre-season-alert">
+            <span style="font-size:24px;">⏳</span>
+            <div>
+              <b>Hazırlık & Test Aşaması</b>
+              <div style="color:var(--text-muted); font-size:12px; margin-top:2px;">
+                Resmi sezon <b>31 Ağustos Pazartesi</b> başlayacak. Şu an yapılan denemeler liderlik puanına yansımaz, 31 Ağustos'ta arkadaşınla birlikte 0 puandan başlayacaksınız!
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
         <div class="slider-wrapper">
           <button class="slider-btn prev" onclick="setSlide(0)" style="${currentSlide === 0 ? 'display:none;' : ''}">❮</button>
           <button class="slider-btn next" onclick="setSlide(1)" style="${currentSlide === 1 ? 'display:none;' : ''}">❯</button>
@@ -814,8 +927,8 @@
                     ${userData.streak || 1} GÜN
                     <span class="streak-fire">🔥</span>
                   </div>
-                  <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
-                    ${(userData.streak || 1) >= 3 ? 'Alev alevsin! Zinciri kırma.' : 'Harika başlangıç! Tempoyu koru.'}
+                  <div style="font-size:11px; color:var(--accent); font-weight:700; margin-top:2px;">
+                    ⚡ Seri Bonusu: ${streakMultiplier}x XP
                   </div>
                 </div>
                 <div style="text-align:right;">
@@ -849,18 +962,19 @@
 
         <div class="day-banner">
           <div>
-            <h2>${currentDayConfig.name}: ${currentDayConfig.isOff ? 'Off Day (Dinlenme)' : 'Full Body'}</h2>
-            <p>14 Eylül Özel Programı • ${currentDayConfig.isOff ? 'Dinlenme Günü (Opsiyonel Antrenman)' : routine.length + ' Egzersiz'}</p>
+            <h2>${matchedDayConfig ? matchedDayConfig.displayDate : (isPreSeason ? 'Hazırlık Modu' : 'Full Body Antrenmanı')}</h2>
+            <p>${isPreSeason ? '31 Ağustos Sezon Öncesi Test Alanı' : (isOffDay ? 'Dinlenme Günü (Opsiyonel 1.5x Antrenman)' : routine.length + ' Egzersiz')}</p>
+            ${isOffDay && !isPreSeason ? '<div class="bonus-badge">🔥 Off Day Bonusu: 1.5x Ekstra XP</div>' : ''}
           </div>
-          <span style="font-size:26px;">${currentDayConfig.isOff ? '🛌' : '🔥'}</span>
+          <span style="font-size:26px;">${isOffDay ? '🛌' : '🔥'}</span>
         </div>
 
-        ${currentDayConfig.isOff ? `
+        ${isOffDay ? `
           <div class="off-day-box">
             <div style="font-size:14px; font-weight:700; color:var(--accent); margin-bottom:4px;">Bugün Normalde Dinlenme Günü</div>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Kendini enerjik hissediyorsan antrenmana başlayabilirsin. Yaptığın antrenman sisteme ve liderlik tablosuna tam puanla işlenir.</p>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Bugün salona gidersen <b>1.5x Ekstra XP Bonusu</b> kazanırsın!</p>
             <button class="btn-start-workout" style="margin-bottom:0;" onclick="startWorkout()">
-              ⚡ Yine de Antrenmana Başla
+              ⚡ 1.5x Bonuslu Antrenmana Başla
             </button>
           </div>
         ` : `
@@ -908,35 +1022,36 @@
       }, { passive: true });
     }
 
-    // --- 14 EYLÜLE KADAR HAFTALIK PLAN GÖRÜNÜMÜ ---
+    // --- GERÇEK ZAMANLI TAKVİM LİSTESİ (31 AĞUSTOS - 14 EYLÜL) ---
     function renderWeeklyView() {
       const main = document.getElementById('mainContent');
-      const todayDayIndex = new Date().getDay();
-      const user = usersData[currentUser.username] || {};
-      const history = user.workoutHistory || {};
-      const todayKey = new Date().toDateString();
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const todayISO = `${year}-${month}-${day}`;
 
       main.innerHTML = `
         <div style="margin-bottom:16px;">
           <h2 style="font-size:20px; font-weight:800; display:flex; align-items:center; gap:8px;">
-            📋 Haftalık Plan (14 Eylüle Kadar)
+            📋 Resmi Çalışma Takvimi
           </h2>
           <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
-            Haftanın 5 günü antrenman; sadece <b>Perşembe</b> ve <b>Pazar</b> günleri dinlenme. Off günlerde de antrenman yapabilirsiniz.
+            <b>31 Ağustos – 14 Eylül</b> dönemi gerçek zamanlı planı. Sadece Perşembe ve Pazar Off Day (1.5x Bonuslu).
           </p>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:8px;">
-          ${WEEKLY_SCHEDULE.map(item => {
-            const isToday = item.dayIndex === todayDayIndex;
-            const completedToday = isToday && user.routine && user.routine.some(ex => ex.completed);
+          ${REAL_SCHEDULE_2026.map(item => {
+            const isToday = item.dateStr === todayISO;
 
             return `
-              <div class="weekly-item ${isToday ? 'weekly-today' : ''}" style="${item.isOff ? 'opacity: 0.85;' : ''}">
+              <div class="weekly-item ${isToday ? 'weekly-today' : ''}" style="${item.isOff ? 'opacity: 0.9;' : ''}">
                 <div>
-                  <div style="font-weight:800; font-size:15px; display:flex; align-items:center; gap:6px;">
-                    ${item.name}
-                    ${isToday ? '<span style="font-size:11px; color:var(--accent); font-weight:700;">(Bugün)</span>' : ''}
+                  <div style="font-weight:800; font-size:14px; display:flex; align-items:center; gap:6px;">
+                    ${item.displayDate}
+                    ${isToday ? '<span style="font-size:10px; background:var(--accent); color:#fff; padding:2px 6px; border-radius:4px;">BUGÜN</span>' : ''}
+                    ${item.isOff ? '<span style="font-size:10px; color:var(--fire); font-weight:700;">[1.5x XP]</span>' : ''}
                   </div>
                   <div style="font-size:12px; color:${item.isOff ? 'var(--warning)' : 'var(--text-muted)'}; margin-top:3px;">
                     ${item.label}
@@ -944,15 +1059,13 @@
                 </div>
 
                 <div style="text-align:right;">
-                  ${completedToday ? `
-                    <span style="color:#3fb950; font-weight:800; font-size:16px;">✓ Tamamlandı</span>
-                  ` : (item.isOff ? `
+                  ${item.isOff ? `
                     <button onclick="switchView('today')" style="background:#21262d; border:1px solid var(--card-border); color:var(--text); font-size:11px; padding:6px 10px; border-radius:6px; cursor:pointer;">
                       Serbest Gir ▶
                     </button>
                   ` : `
-                    <span style="color:var(--text-muted); font-size:13px;">Antrenman Günü</span>
-                  `)}
+                    <span style="color:var(--text-muted); font-size:12px;">Antrenman</span>
+                  `}
                 </div>
               </div>
             `;
@@ -962,31 +1075,40 @@
     }
 
     function resetMyWorkout() {
-      if (!confirm('Bugünkü antrenmandaki tüm yeşil tikleri ve test kayıtlarını sıfırlamak istiyor musunuz?')) return;
+      if (!confirm('Antrenmandaki tüm yeşil tikleri ve test kayıtlarını sıfırlamak istiyor musunuz?')) return;
       const user = usersData[currentUser.username];
       if (user && user.routine) {
         user.routine.forEach(ex => ex.completed = false);
         user.logs = {};
-        if (confirm('Test sırasında kazanılan XP puanınızı da 0 yapmak ister misiniz?')) {
+        if (confirm('XP puanınızı da 0 yapmak ister misiniz?')) {
           user.xp = 0;
         }
         saveDB();
         renderTodayView();
-        alert('Antrenman sıfırlandı! Yeni bir antrenmana hazırsınız.');
+        alert('Tüm veriler sıfırlandı.');
       }
     }
 
-    function renderLeaderboardView() {
+    async function renderLeaderboardView() {
       const main = document.getElementById('mainContent');
+      main.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted);">Buluttan canlı sıralama yükleniyor... ⚡</div>`;
+
+      await syncCloudDB(true);
+      checkSeasonStartReset();
+
       const sortedUsers = Object.values(usersData).sort((a, b) => (b.xp || 0) - (a.xp || 0));
+      const isPreSeason = new Date() < SEASON_START_DATE;
 
       main.innerHTML = `
         <div style="margin-bottom:16px;">
-          <h2 style="font-size:20px; font-weight:800; display:flex; align-items:center; gap:8px;">
-            🏆 Haftalık Liderlik Tablosu
-          </h2>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="font-size:20px; font-weight:800; display:flex; align-items:center; gap:8px;">
+              🏆 Canlı Liderlik Tablosu
+            </h2>
+            <button onclick="renderLeaderboardView()" style="background:#1c2430; border:1px solid var(--card-border); color:var(--accent); padding:4px 8px; border-radius:6px; font-size:12px; cursor:pointer;">🔄 Yenile</button>
+          </div>
           <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
-            Kaldırdığın kilo ve tamamladığın tekrarlar XP'ye dönüşür. Sıralamada yüksel!
+            ${isPreSeason ? '⏳ <b>Hazırlık Modu:</b> Resmi yarışma 31 Ağustos\'ta başlayacaktır.' : 'Canlı Sezon Sıralaması'}
           </p>
         </div>
 
@@ -1012,7 +1134,7 @@
                 </div>
                 <div style="text-align:right;">
                   <div style="font-weight:800; color:var(--gold); font-size:14px;">${user.xp || 0} XP</div>
-                  <div style="font-size:11px; color:var(--text-muted);">Puan</div>
+                  <div style="font-size:11px; color:var(--text-muted);">${isPreSeason ? 'Hazırlık' : 'Puan'}</div>
                 </div>
               </div>
             `;
@@ -1034,7 +1156,7 @@
         <div style="margin-bottom:16px;">
           <h2 style="font-size:20px; font-weight:800; color:var(--accent);">👑 Berk Özel Yönetim Paneli</h2>
           <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
-            Sisteme kayıtlı üyeleri yönetin, şifrelerini güncelleyin, serilerini ve ilerlemelerini sıfırlayın.
+            Buluttaki tüm üyeleri görüntüleyin, şifreleri yönetin veya hesapları silin.
           </p>
         </div>
 
@@ -1089,7 +1211,7 @@
     }
 
     function adminResetUserProgress(username) {
-      if (confirm(`'${username}' kullanıcısının antrenman tiklerini, serisini ve XP'sini sıfırlamak istiyor musunuz?`)) {
+      if (confirm(`'${username}' kullanıcısının verilerini sıfırlamak istiyor musunuz?`)) {
         if (usersData[username]) {
           usersData[username].routine.forEach(ex => ex.completed = false);
           usersData[username].logs = {};
@@ -1282,18 +1404,30 @@
         });
       }
 
-      let gainedXp = 0;
+      let baseGainedXp = 0;
       if (ex.id === 'treadmill') {
-        gainedXp = 25 * 20;
+        baseGainedXp = 25 * 20;
       } else {
         user.logs[ex.id].forEach(s => {
           const kg = parseFloat(s.kg) || 0;
           const rep = parseInt(s.rep) || 10;
-          gainedXp += Math.round(kg * rep * 0.5);
+          baseGainedXp += Math.round(kg * rep * 0.5);
         });
       }
 
-      user.xp = (user.xp || 0) + gainedXp;
+      const streakBonus = Math.min(2.0, 1 + ((user.streak || 1) * 0.05));
+      const todayDayIndex = new Date().getDay();
+      const isOffDay = (todayDayIndex === 4 || todayDayIndex === 0);
+      const offDayBonus = isOffDay ? 1.5 : 1.0;
+
+      const finalGainedXp = Math.round(baseGainedXp * streakBonus * offDayBonus);
+
+      // 31 Ağustos öncesi ise sadece yerel göster, resmi sezona puan olarak ekleme
+      const isPreSeason = new Date() < SEASON_START_DATE;
+      if (!isPreSeason) {
+        user.xp = (user.xp || 0) + finalGainedXp;
+      }
+
       saveDB();
 
       if (currentExerciseIndex < routine.length - 1) {
@@ -1302,7 +1436,12 @@
       } else {
         closeModal('workoutModal');
         renderTodayView();
-        alert(`Tebrikler ${user.username}! Antrenmanı tamamladın ve +${gainedXp} XP kazandın! 🔥`);
+        if (isPreSeason) {
+          alert(`Test antrenmanı tamamlandı! (Hazırlık modunda olduğunuz için resmi sezona 31 Ağustos'ta 0 puandan başlanacaktır).`);
+        } else {
+          let bonusMsg = isOffDay ? " (🔥 1.5x Off Day & Seri Bonusu Dahil!)" : ` (⚡ ${streakBonus.toFixed(2)}x Seri Bonusu Dahil!)`;
+          alert(`Tebrikler ${user.username}! Antrenmanı tamamladın ve +${finalGainedXp} XP kazandın!${bonusMsg}`);
+        }
       }
     }
 
@@ -1326,12 +1465,15 @@
     function openWorkoutModal() { document.getElementById('workoutModal').classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    function handleLogin() {
+    async function handleLogin() {
       const usernameInput = document.getElementById('loginUsername').value.trim().toLowerCase();
       const passwordInput = document.getElementById('loginPassword').value;
 
       if (!usernameInput) return alert('Lütfen bir kullanıcı adı girin.');
       if (!passwordInput) return alert('Lütfen bir şifre girin.');
+
+      await syncCloudDB(true);
+      checkSeasonStartReset();
 
       if (usersData[usernameInput]) {
         if (usersData[usernameInput].password && usersData[usernameInput].password !== passwordInput) {
@@ -1351,7 +1493,8 @@
           xp: 0,
           week: 1,
           streak: 1,
-          lastLoginDate: new Date().toDateString()
+          lastLoginDate: new Date().toDateString(),
+          seasonStarted: new Date() >= SEASON_START_DATE
         };
       }
 
