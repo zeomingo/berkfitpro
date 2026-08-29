@@ -59,7 +59,6 @@
 
     main { flex: 1; max-width: 580px; width: 100%; margin: 0 auto; padding: 16px; }
 
-    /* SEZON ÖNCESİ GERİ SAYIM BANNERI */
     .pre-season-alert {
       background: rgba(210, 153, 34, 0.12);
       border: 1px solid rgba(210, 153, 34, 0.35);
@@ -73,7 +72,7 @@
       line-height: 1.4;
     }
 
-    /* SLIDER & KART YAPISI (SERİ <-> SEVİYE) */
+    /* SLIDER & KART YAPISI */
     .slider-wrapper {
       position: relative;
       width: 100%;
@@ -96,23 +95,26 @@
       justify-content: center;
       position: relative;
     }
+
     .slider-btn {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(30, 41, 59, 0.85);
-      border: 1px solid var(--card-border);
-      color: var(--text);
+      background: #1c2430;
+      border: 1px solid rgba(56, 139, 253, 0.5);
+      color: var(--accent);
       width: 32px; height: 32px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       z-index: 10;
+      transition: all 0.2s;
     }
-    .slider-btn.next { right: 10px; }
-    .slider-btn.prev { left: 10px; }
+    .slider-btn:active { transform: translateY(-50%) scale(0.92); background: var(--accent); color: #fff; }
+    .slider-btn.next { right: 12px; }
+    .slider-btn.prev { left: 12px; }
 
     .slider-dots {
       position: absolute;
@@ -128,6 +130,7 @@
       border-radius: 50%;
       background: #30363d;
       transition: all 0.3s;
+      cursor: pointer;
     }
     .dot.active {
       width: 16px;
@@ -139,7 +142,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 4px 10px;
+      padding: 4px 34px 4px 8px; /* Sağ oka çarpmaması için sağ padding artırıldı */
     }
     .streak-info h3 {
       font-size: 12px;
@@ -166,7 +169,10 @@
       100% { transform: scale(1.15); filter: drop-shadow(0 0 12px rgba(255, 87, 34, 0.9)); }
     }
 
-    .level-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 0 8px; }
+    .level-container {
+      padding: 4px 8px 4px 34px; /* Sol oka çarpmaması için sol padding artırıldı */
+    }
+    .level-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .level-title { font-size: 13px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 6px; }
     .xp-count { font-size: 13px; font-weight: 800; color: var(--gold); }
     .xp-bar-bg { width: 100%; height: 8px; background: #090d13; border-radius: 10px; overflow: hidden; border: 1px solid var(--card-border); }
@@ -669,7 +675,6 @@
       { id: "treadmill", name: "Eğimli Yürüyüş Bandı", sets: "20-25 dk | Eğim %8-10", completed: false }
     ];
 
-    // --- 31 AĞUSTOS - 14 EYLÜL GERÇEK ZAMANLI TAKVİM LİSTESİ ---
     const REAL_SCHEDULE_2026 = [
       { dateStr: "2026-08-31", displayDate: "31 Ağustos Pazartesi", isOff: false, label: "Full Body (Resmi Sezon Başlangıcı 🔥)" },
       { dateStr: "2026-09-01", displayDate: "1 Eylül Salı", isOff: false, label: "Full Body & Kardiyo" },
@@ -688,10 +693,10 @@
       { dateStr: "2026-09-14", displayDate: "14 Eylül Pazartesi", isOff: false, label: "Full Body (1. Dönem Kapanış)" }
     ];
 
-    // Sezonun Resmi Başlangıç Zamanı: 31 Ağustos 2026 00:00:00
     const SEASON_START_DATE = new Date("2026-08-31T00:00:00");
 
-    const CLOUD_MASTER_KEY = "$2a$10$7vN34h5PzCj15WwV0hFvXe7t0zN230.fQZ8XqVb9G0wL1v5WqP9Te";
+    // --- GERÇEK ZAMANLI GENEL BULUT VERİTABANI (FIREBASE REALTIME API) ---
+    const DB_ENDPOINT = "https://berkfit-pro-default-rtdb.firebaseio.com/users.json";
 
     let defaultUsers = {
       'berk': { 
@@ -713,26 +718,22 @@
     let draggedIndex = null;
     let currentSlide = 0;
 
+    // --- BULUT VERİ SENKRONİZASYONU ---
     async function syncCloudDB(fetchFirst = false) {
       try {
         if (fetchFirst) {
-          const res = await fetch(`https://api.jsonbin.io/v3/b/66d3a812acd3cb34a87b8f9e/latest`, {
-            headers: { "X-Master-Key": CLOUD_MASTER_KEY }
-          });
+          const res = await fetch(DB_ENDPOINT);
           if (res.ok) {
             const data = await res.json();
-            if (data.record && Object.keys(data.record).length > 0) {
-              usersData = { ...usersData, ...data.record };
+            if (data && typeof data === 'object') {
+              usersData = { ...usersData, ...data };
               localStorage.setItem('berkfit_users_db', JSON.stringify(usersData));
             }
           }
         } else {
-          fetch(`https://api.jsonbin.io/v3/b/66d3a812acd3cb34a87b8f9e`, {
+          fetch(DB_ENDPOINT, {
             method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Master-Key": CLOUD_MASTER_KEY
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(usersData)
           }).catch(() => {});
         }
@@ -746,17 +747,15 @@
       } else {
         localStorage.removeItem('berkfit_user');
       }
-      syncCloudDB(false);
+      syncCloudDB(false); // Buluta anında kaydet
     }
 
-    // --- 31 AĞUSTOS KONTROLÜ VE PUAN SIFIRLAMA OTOMASYONU ---
     function checkSeasonStartReset() {
       const now = new Date();
-      // 31 Ağustos 00:00'dan sonra ise ve kullanıcı henüz sezona sıfırlanarak başlamadıysa
       if (now >= SEASON_START_DATE) {
         Object.keys(usersData).forEach(u => {
           if (!usersData[u].seasonStarted) {
-            usersData[u].xp = 0; // Test puanlarını sıfırla
+            usersData[u].xp = 0;
             usersData[u].streak = 1;
             usersData[u].logs = {};
             usersData[u].routine = JSON.parse(JSON.stringify(INITIAL_ROUTINE));
@@ -861,14 +860,24 @@
       else if (view === 'admin') renderAdminView();
     }
 
+    // --- KART SLIDER YÖNETİMİ: SOLDA SAĞA OK, SAĞDA SOLA OK ---
     function setSlide(index) {
       currentSlide = index;
       const track = document.getElementById('sliderTrack');
+      const btnPrev = document.getElementById('btnPrevSlide');
+      const btnNext = document.getElementById('btnNextSlide');
       const dot0 = document.getElementById('dot0');
       const dot1 = document.getElementById('dot1');
-      if (!track) return;
 
-      track.style.transform = `translateX(-${index * 50}%)`;
+      if (track) track.style.transform = `translateX(-${index * 50}%)`;
+
+      // 0. sayfada (solda) iken sadece SAĞ OK görünür
+      // 1. sayfada (sağda) iken sadece SOL OK görünür
+      if (btnPrev && btnNext) {
+        btnPrev.style.display = index === 1 ? 'flex' : 'none';
+        btnNext.style.display = index === 0 ? 'flex' : 'none';
+      }
+
       if (dot0 && dot1) {
         dot0.classList.toggle('active', index === 0);
         dot1.classList.toggle('active', index === 1);
@@ -890,7 +899,6 @@
       const now = new Date();
       const isPreSeason = now < SEASON_START_DATE;
 
-      // Gerçek zamanlı tarih formatlama (YYYY-MM-DD)
       const year = now.getFullYear();
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const day = String(now.getDate()).padStart(2, '0');
@@ -914,11 +922,16 @@
           </div>
         ` : ''}
 
+        <!-- GÜNLÜK SERİ & SEVİYE SLIDERI -->
         <div class="slider-wrapper">
-          <button class="slider-btn prev" onclick="setSlide(0)" style="${currentSlide === 0 ? 'display:none;' : ''}">❮</button>
-          <button class="slider-btn next" onclick="setSlide(1)" style="${currentSlide === 1 ? 'display:none;' : ''}">❯</button>
+          <!-- Solda iken gizli, sağa geçince sola dönme oku -->
+          <button class="slider-btn prev" id="btnPrevSlide" onclick="setSlide(0)" style="${currentSlide === 0 ? 'display:none;' : 'display:flex;'}">❮</button>
+          
+          <!-- Solda iken sağa geçme oku, sağa geçince gizli -->
+          <button class="slider-btn next" id="btnNextSlide" onclick="setSlide(1)" style="${currentSlide === 1 ? 'display:none;' : 'display:flex;'}">❯</button>
           
           <div class="slider-track" id="sliderTrack" style="transform: translateX(-${currentSlide * 50}%);">
+            <!-- 1. KART (SOL): GÜNLÜK SERİ -->
             <div class="slide-card">
               <div class="streak-container">
                 <div class="streak-info">
@@ -931,25 +944,23 @@
                     ⚡ Seri Bonusu: ${streakMultiplier}x XP
                   </div>
                 </div>
-                <div style="text-align:right;">
-                  <button onclick="setSlide(1)" style="background:#1c2430; border:1px solid var(--card-border); color:var(--accent); font-size:11px; font-weight:700; padding:6px 10px; border-radius:8px; cursor:pointer;">
-                    Seviye ❯
-                  </button>
-                </div>
               </div>
             </div>
 
+            <!-- 2. KART (SAĞ): SEVİYE & XP BARI -->
             <div class="slide-card">
-              <div class="level-header">
-                <div class="level-title">⚡ SEVİYE ${level} SPORCU</div>
-                <div class="xp-count">${userData.xp || 0} XP</div>
-              </div>
-              <div class="xp-bar-bg">
-                <div class="xp-bar-fill" style="width: ${progressPercent}%;"></div>
-              </div>
-              <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; margin-top:6px; padding: 0 4px;">
-                <span>Seviye ${level}</span>
-                <span>Sonraki: ${nextLevelXp} XP</span>
+              <div class="level-container">
+                <div class="level-header">
+                  <div class="level-title">⚡ SEVİYE ${level} SPORCU</div>
+                  <div class="xp-count">${userData.xp || 0} XP</div>
+                </div>
+                <div class="xp-bar-bg">
+                  <div class="xp-bar-fill" style="width: ${progressPercent}%;"></div>
+                </div>
+                <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; margin-top:6px;">
+                  <span>Seviye ${level}</span>
+                  <span>Sonraki: ${nextLevelXp} XP</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1022,7 +1033,6 @@
       }, { passive: true });
     }
 
-    // --- GERÇEK ZAMANLI TAKVİM LİSTESİ (31 AĞUSTOS - 14 EYLÜL) ---
     function renderWeeklyView() {
       const main = document.getElementById('mainContent');
       const now = new Date();
@@ -1108,7 +1118,7 @@
             <button onclick="renderLeaderboardView()" style="background:#1c2430; border:1px solid var(--card-border); color:var(--accent); padding:4px 8px; border-radius:6px; font-size:12px; cursor:pointer;">🔄 Yenile</button>
           </div>
           <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
-            ${isPreSeason ? '⏳ <b>Hazırlık Modu:</b> Resmi yarışma 31 Ağustos\'ta başlayacaktır.' : 'Canlı Sezon Sıralaması'}
+            ${isPreSeason ? '⏳ <b>Hazırlık Modu:</b> Resmi yarışma 31 Ağustos\'ta başlayacaktır.' : 'Tüm cihazlarla anlık senkronize sezon tablosu.'}
           </p>
         </div>
 
@@ -1422,7 +1432,6 @@
 
       const finalGainedXp = Math.round(baseGainedXp * streakBonus * offDayBonus);
 
-      // 31 Ağustos öncesi ise sadece yerel göster, resmi sezona puan olarak ekleme
       const isPreSeason = new Date() < SEASON_START_DATE;
       if (!isPreSeason) {
         user.xp = (user.xp || 0) + finalGainedXp;
