@@ -170,7 +170,6 @@
     .rank-3 { background: rgba(210, 153, 34, 0.15); color: var(--bronze); border: 1px solid var(--bronze); }
     .rank-other { background: #1c2430; color: var(--text-muted); }
 
-    /* SAFARI & MOBIL UYUMLU TAM EKRAN MODAL YAPISI */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -196,7 +195,6 @@
       gap: 12px;
     }
 
-    /* Görsel & Animasyon Sahnesi (Ölçüler küçültüldü, ekrana sığar) */
     .workout-stage {
       width: 100%;
       height: 135px;
@@ -308,7 +306,7 @@
       <div style="text-align:center; margin-bottom:6px;">
         <h3 style="font-weight: 800; font-size:20px;">BerkFit Pro'ya Katıl</h3>
         <p style="font-size: 13px; color: var(--text-muted); margin-top:4px;">
-          Antrenmanlarını kaydetmek ve liderlik tablosuna katılmak için giriş yap veya isim belirle.
+          Giriş yaptıktan sonra bu cihazda oturumunuz sürekli açık kalacaktır.
         </p>
       </div>
 
@@ -541,14 +539,24 @@
       'berk': { username: 'berk', password: '', role: 'admin', routine: INITIAL_ROUTINE, ratings: {}, logs: {}, xp: 0, week: 1 }
     };
 
-    let currentUser = JSON.parse(localStorage.getItem('berkfit_user')) || null;
+    // --- KALICI OTURUM KONTROLÜ (LOCALSTORAGE) ---
+    let currentUser = null;
+    try {
+      const storedUser = localStorage.getItem('berkfit_user');
+      if (storedUser) currentUser = JSON.parse(storedUser);
+    } catch(e) { currentUser = null; }
+
     let usersData = JSON.parse(localStorage.getItem('berkfit_users_db')) || defaultUsers;
     let currentExerciseIndex = 0;
     let draggedIndex = null;
 
     function saveDB() {
       localStorage.setItem('berkfit_users_db', JSON.stringify(usersData));
-      localStorage.setItem('berkfit_user', JSON.stringify(currentUser));
+      if (currentUser) {
+        localStorage.setItem('berkfit_user', JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem('berkfit_user');
+      }
     }
 
     function calculateLevel(xp) {
@@ -578,12 +586,16 @@
       return { kg: defaultTarget.kg, rep: defaultTarget.rep };
     }
 
+    // --- BAŞLATMA & KALICI OTURUM KONTROLÜ ---
     function init() {
       renderHeader();
-      if (!currentUser) {
-        openLoginModal(true);
-      } else {
+      if (currentUser && currentUser.username && usersData[currentUser.username]) {
+        // Kullanıcı önceden giriş yapmış, modalı açma, direkt sayfayı getir
+        closeModal('loginModal');
         renderTodayView();
+      } else {
+        // İlk kez giriliyor veya oturum kapatılmış
+        openLoginModal(true);
       }
     }
 
@@ -597,7 +609,7 @@
           <span style="font-size:13px; font-weight:700;">${currentUser.username}</span>
           ${currentUser.role === 'admin' ? '<span class="badge-admin">Admin</span>' : ''}
         `;
-        authBtn.innerText = 'Çıkış';
+        authBtn.innerText = 'Çıkış Yap';
         authBtn.onclick = handleLogout;
         adminLink.style.display = currentUser.role === 'admin' ? 'block' : 'none';
       } else {
@@ -1055,6 +1067,7 @@
     function openWorkoutModal() { document.getElementById('workoutModal').classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+    // --- KALICI GİRİŞ FONKSİYONU ---
     function handleLogin() {
       const usernameInput = document.getElementById('loginUsername').value.trim().toLowerCase();
       const passwordInput = document.getElementById('loginPassword').value;
@@ -1083,17 +1096,20 @@
       }
 
       currentUser = { username: usernameInput, role: usersData[usernameInput].role };
-      saveDB();
+      saveDB(); // Cihazın hafızasına kalıcı kaydeder
       closeModal('loginModal');
       renderHeader();
       renderTodayView();
     }
 
+    // --- MANUEL ÇIKIŞ YAPILANA KADAR OTURUM KORUNUR ---
     function handleLogout() {
-      currentUser = null;
-      localStorage.removeItem('berkfit_user');
-      renderHeader();
-      openLoginModal(true);
+      if (confirm('Hesabınızdan çıkış yapmak istediğinize emin misiniz?')) {
+        currentUser = null;
+        localStorage.removeItem('berkfit_user'); // Kalıcı oturumu sadece burada temizler
+        renderHeader();
+        openLoginModal(true);
+      }
     }
 
     init();
