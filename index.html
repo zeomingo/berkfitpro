@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>BerkFit Pro</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -174,25 +174,43 @@
     .rank-3 { background: rgba(210, 153, 34, 0.15); color: var(--bronze); border: 1px solid var(--bronze); }
     .rank-other { background: #1c2430; color: var(--text-muted); }
 
+    /* MOBİL VE DİKEY KAYDIRMA İÇİN GÜNCELLENEN MODAL */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
-      z-index: 300; display: none; align-items: center; justify-content: center; padding: 14px;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px);
+      z-index: 300; display: none; align-items: flex-end; justify-content: center;
+      padding: 0;
+    }
+    @media (min-width: 600px) {
+      .modal-overlay { align-items: center; padding: 20px; }
     }
     .modal-overlay.active { display: flex; }
+    
     .modal-box {
       background: var(--card);
       border: 1px solid var(--card-border);
-      border-radius: 18px;
-      width: 100%; max-width: 500px;
-      padding: 20px;
+      border-radius: 24px 24px 0 0;
+      width: 100%; max-width: 520px;
+      padding: 18px 18px calc(24px + env(safe-area-inset-bottom, 16px));
       display: flex; flex-direction: column; gap: 14px;
-      max-height: 94vh; overflow-y: auto;
+      max-height: 90vh; max-height: 90dvh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       position: relative;
     }
+    @media (min-width: 600px) {
+      .modal-box { border-radius: 20px; max-height: 86vh; }
+    }
 
+    /* Modal Üst Çekme Çizgisi */
+    .modal-drag-bar {
+      width: 40px; height: 4px; background: #30363d;
+      border-radius: 4px; margin: -6px auto 6px;
+    }
+
+    /* Görsel & Animasyon Sahnesi */
     .workout-stage {
       width: 100%;
-      height: 220px;
+      height: 180px;
       background: radial-gradient(circle at center, #1b2738 0%, #0d131a 100%);
       border-radius: 14px;
       border: 1px solid var(--card-border);
@@ -201,11 +219,12 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      flex-shrink: 0;
     }
     .stage-badge {
-      position: absolute; top: 10px; left: 10px;
-      background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.1);
-      padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; color: var(--accent);
+      position: absolute; top: 8px; left: 8px;
+      background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.1);
+      padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; color: var(--accent);
     }
     
     .fly-left-arm { transform-origin: 55px 72px; animation: armFlyLeft 2.4s ease-in-out infinite alternate; }
@@ -219,41 +238,30 @@
 
     .form-tip-box {
       background: #0f1620; border-left: 3px solid var(--accent);
-      padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 12px; line-height: 1.5; text-align: left;
+      padding: 10px 12px; border-radius: 0 8px 8px 0; font-size: 12px; line-height: 1.4; text-align: left;
     }
 
-    /* Silik Placeholder ve Gelişmiş Giriş Stilleri */
     .log-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     .log-table th { font-size: 11px; color: var(--text-muted); text-align: center; padding: 6px; }
     .log-table td { padding: 4px 6px; text-align: center; }
     .input-log {
-      width: 78px;
+      width: 80px;
       background: #090d13;
       border: 1px solid var(--card-border);
       color: #fff;
-      padding: 8px;
+      padding: 9px;
       border-radius: 8px;
       text-align: center;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 15px;
       transition: all 0.2s;
     }
-    /* Silik Gölge Görünümü */
-    .input-log::placeholder {
-      color: #485569;
-      font-weight: 500;
-      opacity: 0.7;
-    }
-    .input-log:focus {
-      border-color: var(--accent);
-      outline: none;
-      background: #111722;
-      box-shadow: 0 0 10px rgba(56, 139, 253, 0.25);
-    }
+    .input-log::placeholder { color: #485569; font-weight: 500; opacity: 0.7; }
+    .input-log:focus { border-color: var(--accent); outline: none; background: #111722; }
 
-    .runner-nav { display: flex; gap: 10px; margin-top: 6px; }
+    .runner-nav { display: flex; gap: 10px; margin-top: 4px; }
     .btn-nav {
-      flex: 1; padding: 12px; background: #1c2430; border: 1px solid var(--card-border);
+      flex: 1; padding: 13px; background: #1c2430; border: 1px solid var(--card-border);
       color: var(--text); font-size: 14px; font-weight: 700; border-radius: 10px; cursor: pointer;
     }
     .btn-nav.btn-done { background: var(--primary); border-color: var(--primary); }
@@ -308,6 +316,7 @@
 
   <div class="modal-overlay" id="loginModal" onclick="closeModalOnOverlay(event, 'loginModal')">
     <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-drag-bar"></div>
       <div style="text-align:center; margin-bottom:6px;">
         <h3 style="font-weight: 800; font-size:20px;">BerkFit Pro'ya Katıl</h3>
         <p style="font-size: 13px; color: var(--text-muted); margin-top:4px;">
@@ -353,7 +362,7 @@
         tip: "Kuş bakışı açıda gördüğünüz gibi, dirsek açısını sabit tutarak ellerinizi göğüs hizanızın tam önünde birleştirin.",
         svg: `
           <div class="stage-badge">Kuş Bakışı (Tepeden Bakış)</div>
-          <svg viewBox="0 0 160 140" style="width:180px; height:150px;">
+          <svg viewBox="0 0 160 140" style="width:160px; height:135px;">
             <rect x="50" y="85" width="60" height="12" rx="4" fill="#2d3748" stroke="#485569" stroke-width="2"/>
             <circle cx="80" cy="72" r="14" fill="#388bfd" stroke="#f0f6fc" stroke-width="2"/>
             <path d="M55 72 Q80 78 105 72" stroke="#f0f6fc" stroke-width="6" stroke-linecap="round"/>
@@ -377,7 +386,7 @@
         tip: "Sırtınızı ve belinizi mindere yaslayın. İtiş yaparken omuzlarınızı öne düşürmeden göğsü önde tutun.",
         svg: `
           <div class="stage-badge">Makine Göğüs İtiş</div>
-          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+          <svg viewBox="0 0 160 120" style="width:150px; height:120px;">
             <rect x="25" y="30" width="10" height="70" rx="3" fill="#2d3748"/>
             <circle cx="55" cy="40" r="10" fill="#388bfd"/>
             <path d="M50 50 L45 85 L65 105" stroke="#f0f6fc" stroke-width="5" stroke-linecap="round"/>
@@ -393,7 +402,7 @@
         tip: "Bara asılırken göğsü kabartın ve barı üst göğüs çizginize doğru kürek kemiklerinizi sıkarak çekin.",
         svg: `
           <div class="stage-badge">Dikey Sırt Çekişi</div>
-          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+          <svg viewBox="0 0 160 120" style="width:150px; height:120px;">
             <circle cx="80" cy="45" r="9" fill="#388bfd"/>
             <path d="M80 54 L80 95" stroke="#f0f6fc" stroke-width="5"/>
             <g class="moving-weight">
@@ -408,7 +417,7 @@
         tip: "Gövdeyi aşırı sallamayın. Dirsekleri geriye atarak kürek kemiklerinizi tam birleştirin.",
         svg: `
           <div class="stage-badge">Karına Yatay Çekiş</div>
-          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+          <svg viewBox="0 0 160 120" style="width:150px; height:120px;">
             <circle cx="45" cy="40" r="9" fill="#388bfd"/>
             <path d="M45 50 L40 85 L70 85" stroke="#f0f6fc" stroke-width="5"/>
             <g class="moving-press">
@@ -423,7 +432,7 @@
         tip: "Dambılları göğüs hizasına kadar çekin. Dirsekler daima el bileklerinden yukarıda olsun.",
         svg: `
           <div class="stage-badge">Yan Omuz & Trapez</div>
-          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+          <svg viewBox="0 0 160 120" style="width:150px; height:120px;">
             <circle cx="80" cy="30" r="9" fill="#388bfd"/>
             <line x1="80" y1="40" x2="80" y2="90" stroke="#f0f6fc" stroke-width="5"/>
             <g class="moving-weight">
@@ -440,7 +449,7 @@
         tip: "Dizleri üst noktada kilitlemeyin. Ayak tabanları platformdan hiç ayrılmasın.",
         svg: `
           <div class="stage-badge">Bacak İtiş (45°)</div>
-          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+          <svg viewBox="0 0 160 120" style="width:150px; height:120px;">
             <rect x="25" y="70" width="40" height="10" transform="rotate(-35 25 70)" fill="#2d3748"/>
             <circle cx="45" cy="50" r="9" fill="#388bfd"/>
             <g class="moving-press">
@@ -455,7 +464,7 @@
         tip: "Topukları kalçaya çekerken beli sehpaya yapıştırın.",
         svg: `
           <div class="stage-badge">Arka Bacak Büküş</div>
-          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+          <svg viewBox="0 0 160 120" style="width:150px; height:120px;">
             <rect x="25" y="75" width="80" height="10" rx="3" fill="#2d3748"/>
             <circle cx="35" cy="65" r="8" fill="#388bfd"/>
             <g class="moving-weight">
@@ -470,7 +479,7 @@
         tip: "Tepe noktada 1 saniye sıkın ve ağırlığı yavaşça indirin.",
         svg: `
           <div class="stage-badge">Ön Bacak Açış</div>
-          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+          <svg viewBox="0 0 160 120" style="width:150px; height:120px;">
             <circle cx="50" cy="45" r="9" fill="#388bfd"/>
             <path d="M50 55 L50 85" stroke="#f0f6fc" stroke-width="5"/>
             <g class="moving-weight">
@@ -485,7 +494,7 @@
         tip: "Dirsekleri belin iki yanına sabitleyip gövdeyi sallamadan bükün.",
         svg: `
           <div class="stage-badge">Kablo Ön Kol</div>
-          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+          <svg viewBox="0 0 160 120" style="width:150px; height:120px;">
             <circle cx="70" cy="35" r="9" fill="#388bfd"/>
             <line x1="70" y1="45" x2="70" y2="95" stroke="#f0f6fc" stroke-width="5"/>
             <g class="moving-weight">
@@ -500,7 +509,7 @@
         tip: "Dirsekleri sabitleyip aşağı doğru presleyin, alt noktada arka kolu kilitleyin.",
         svg: `
           <div class="stage-badge">Kablo Arka Kol</div>
-          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+          <svg viewBox="0 0 160 120" style="width:150px; height:120px;">
             <circle cx="65" cy="35" r="9" fill="#388bfd"/>
             <line x1="65" y1="45" x2="65" y2="95" stroke="#f0f6fc" stroke-width="5"/>
             <g class="moving-weight">
@@ -515,7 +524,7 @@
         tip: "Bant tutacaklarına asılmadan dik tempoda yürüyün.",
         svg: `
           <div class="stage-badge">LISS Kardiyo</div>
-          <svg viewBox="0 0 160 120" style="width:170px; height:130px;">
+          <svg viewBox="0 0 160 120" style="width:150px; height:120px;">
             <line x1="30" y1="95" x2="130" y2="75" stroke="#f1e05a" stroke-width="7" stroke-linecap="round"/>
             <circle cx="75" cy="40" r="9" fill="#388bfd"/>
             <g class="moving-press">
@@ -852,7 +861,6 @@
       renderWorkoutStep();
     }
 
-    // --- SİLİK VE GÖLGE HEDEF GÖRÜNÜMÜ ---
     function renderWorkoutStep() {
       const routine = usersData[currentUser.username].routine;
       const ex = routine[currentExerciseIndex];
@@ -863,10 +871,11 @@
       const savedLogs = (usersData[currentUser.username].logs && usersData[currentUser.username].logs[ex.id]) || [];
 
       box.innerHTML = `
+        <div class="modal-drag-bar"></div>
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
           <div style="text-align:left;">
-            <h2 style="font-size:19px; font-weight:800; color:#fff;">${currentExerciseIndex + 1}. ${ex.name}</h2>
-            <div style="font-size:13px; color:var(--accent); font-weight:700; margin-top:3px;">(${detail.muscle})</div>
+            <h2 style="font-size:18px; font-weight:800; color:#fff;">${currentExerciseIndex + 1}. ${ex.name}</h2>
+            <div style="font-size:13px; color:var(--accent); font-weight:700; margin-top:2px;">(${detail.muscle})</div>
           </div>
           <button onclick="closeModal('workoutModal')" style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; padding:4px;">✕</button>
         </div>
@@ -895,7 +904,6 @@
             <tbody>
               ${[1, 2, 3].map((setNum, idx) => {
                 const target = calculateSmartTarget(ex.id, idx);
-                // Eğer kullanıcı elle bir şey yazmışsa o değer, yazmamışsa İÇİ BOŞ (value="") ve placeholder olarak silik hedef
                 const userValKg = (savedLogs[idx] && savedLogs[idx].userEntered && savedLogs[idx].kg !== undefined) ? savedLogs[idx].kg : '';
                 const userValRep = (savedLogs[idx] && savedLogs[idx].userEntered && savedLogs[idx].rep !== undefined) ? savedLogs[idx].rep : '';
 
@@ -988,7 +996,6 @@
       const ex = routine[currentExerciseIndex];
       ex.completed = true;
 
-      // Kullanıcı kutucuğu doldurmadıysa silik hedefi baz alarak XP ve kayıt oluştur
       if (!user.logs) user.logs = {};
       if (!user.logs[ex.id]) {
         user.logs[ex.id] = [0, 1, 2].map(idx => calculateSmartTarget(ex.id, idx));
