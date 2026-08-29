@@ -72,7 +72,6 @@
       line-height: 1.4;
     }
 
-    /* SLIDER & KART YAPISI */
     .slider-wrapper {
       position: relative;
       width: 100%;
@@ -142,7 +141,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 4px 34px 4px 8px; /* Sağ oka çarpmaması için sağ padding artırıldı */
+      padding: 4px 34px 4px 8px;
     }
     .streak-info h3 {
       font-size: 12px;
@@ -170,7 +169,7 @@
     }
 
     .level-container {
-      padding: 4px 8px 4px 34px; /* Sol oka çarpmaması için sol padding artırıldı */
+      padding: 4px 8px 4px 34px;
     }
     .level-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .level-title { font-size: 13px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 6px; }
@@ -416,10 +415,10 @@
       <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer;">✕</button>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="#" class="active" onclick="switchView('today')">📅 Günün Antrenmanı</a></li>
-      <li><a href="#" onclick="switchView('leaderboard')">🏆 Liderlik Tablosu</a></li>
-      <li><a href="#" onclick="switchView('weekly')">📋 Gerçek Takvim (31 Ağu - 14 Eyl)</a></li>
-      <li id="adminMenuLink" style="display: none;"><a href="#" onclick="switchView('admin')">👑 Admin & Üye Paneli</a></li>
+      <li><a href="#" id="nav-today" onclick="switchView('today')">📅 Günün Antrenmanı</a></li>
+      <li><a href="#" id="nav-leaderboard" onclick="switchView('leaderboard')">🏆 Liderlik Tablosu</a></li>
+      <li><a href="#" id="nav-weekly" onclick="switchView('weekly')">📋 Gerçek Takvim (31 Ağu - 14 Eyl)</a></li>
+      <li id="adminMenuLink" style="display: none;"><a href="#" id="nav-admin" onclick="switchView('admin')">👑 Admin & Üye Paneli</a></li>
     </ul>
   </aside>
 
@@ -695,8 +694,9 @@
 
     const SEASON_START_DATE = new Date("2026-08-31T00:00:00");
 
-    // --- GERÇEK ZAMANLI GENEL BULUT VERİTABANI (FIREBASE REALTIME API) ---
-    const DB_ENDPOINT = "https://berkfit-pro-default-rtdb.firebaseio.com/users.json";
+    // --- TÜM CİHAZLARIN BAĞLANDIĞI ORTAK BULUT REST API HAVUZU ---
+    const SHARED_CLOUD_OBJECT_ID = "ff80818191cb5cb90191cb61d7630001";
+    const CLOUD_API_ENDPOINT = `https://api.restful-api.dev/objects/${SHARED_CLOUD_OBJECT_ID}`;
 
     let defaultUsers = {
       'berk': { 
@@ -718,23 +718,25 @@
     let draggedIndex = null;
     let currentSlide = 0;
 
-    // --- BULUT VERİ SENKRONİZASYONU ---
+    // --- BULUT VERİ SENKRONİZASYONU (HERKES BİRBİRİNİ GÖRÜR) ---
     async function syncCloudDB(fetchFirst = false) {
       try {
         if (fetchFirst) {
-          const res = await fetch(DB_ENDPOINT);
+          const res = await fetch(CLOUD_API_ENDPOINT);
           if (res.ok) {
-            const data = await res.json();
-            if (data && typeof data === 'object') {
-              usersData = { ...usersData, ...data };
+            const result = await res.json();
+            if (result && result.data && result.data.users) {
+              usersData = { ...usersData, ...result.data.users };
               localStorage.setItem('berkfit_users_db', JSON.stringify(usersData));
             }
           }
         } else {
-          fetch(DB_ENDPOINT, {
-            method: "PUT",
+          fetch(CLOUD_API_ENDPOINT, {
+            method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(usersData)
+            body: JSON.stringify({
+              data: { users: usersData }
+            })
           }).catch(() => {});
         }
       } catch (err) {}
@@ -747,7 +749,7 @@
       } else {
         localStorage.removeItem('berkfit_user');
       }
-      syncCloudDB(false); // Buluta anında kaydet
+      syncCloudDB(false);
     }
 
     function checkSeasonStartReset() {
@@ -824,7 +826,10 @@
         updateDailyStreak(usersData[currentUser.username]);
         saveDB();
         closeModal('loginModal');
-        renderTodayView();
+        
+        // Yenilenen sayfada kalınan sekmeden devam et (varsayılan: today)
+        const savedView = localStorage.getItem('berkfit_current_view') || 'today';
+        switchView(savedView, false);
       } else {
         openLoginModal(true);
       }
@@ -851,9 +856,20 @@
       }
     }
 
-    function switchView(view) {
-      toggleSidebar(false);
+    // --- SEKMEDE KALMA HAFIZASI EKLENDİ ---
+    function switchView(view, closeMenu = true) {
+      if (closeMenu) toggleSidebar(false);
       if (!currentUser) { openLoginModal(true); return; }
+
+      // Aktif sekme durumunu hafızaya kaydet
+      localStorage.setItem('berkfit_current_view', view);
+
+      // Menüdeki aktif linki işaretle
+      ['today', 'leaderboard', 'weekly', 'admin'].forEach(v => {
+        const el = document.getElementById(`nav-${v}`);
+        if (el) el.classList.toggle('active', v === view);
+      });
+
       if (view === 'today') renderTodayView();
       else if (view === 'leaderboard') renderLeaderboardView();
       else if (view === 'weekly') renderWeeklyView();
@@ -871,8 +887,6 @@
 
       if (track) track.style.transform = `translateX(-${index * 50}%)`;
 
-      // 0. sayfada (solda) iken sadece SAĞ OK görünür
-      // 1. sayfada (sağda) iken sadece SOL OK görünür
       if (btnPrev && btnNext) {
         btnPrev.style.display = index === 1 ? 'flex' : 'none';
         btnNext.style.display = index === 0 ? 'flex' : 'none';
@@ -922,12 +936,8 @@
           </div>
         ` : ''}
 
-        <!-- GÜNLÜK SERİ & SEVİYE SLIDERI -->
         <div class="slider-wrapper">
-          <!-- Solda iken gizli, sağa geçince sola dönme oku -->
           <button class="slider-btn prev" id="btnPrevSlide" onclick="setSlide(0)" style="${currentSlide === 0 ? 'display:none;' : 'display:flex;'}">❮</button>
-          
-          <!-- Solda iken sağa geçme oku, sağa geçince gizli -->
           <button class="slider-btn next" id="btnNextSlide" onclick="setSlide(1)" style="${currentSlide === 1 ? 'display:none;' : 'display:flex;'}">❯</button>
           
           <div class="slider-track" id="sliderTrack" style="transform: translateX(-${currentSlide * 50}%);">
@@ -1512,13 +1522,16 @@
       saveDB();
       closeModal('loginModal');
       renderHeader();
-      renderTodayView();
+      
+      const savedView = localStorage.getItem('berkfit_current_view') || 'today';
+      switchView(savedView, false);
     }
 
     function handleLogout() {
       if (confirm('Hesabınızdan çıkış yapmak istediğinize emin misiniz?')) {
         currentUser = null;
         localStorage.removeItem('berkfit_user');
+        localStorage.removeItem('berkfit_current_view');
         renderHeader();
         openLoginModal(true);
       }
